@@ -1,47 +1,150 @@
-# Svelte + TS + Vite
+# RecruitMate Frontend
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+This is the frontend application for RecruitMate, built with Svelte and SvelteKit. It provides a modern, responsive user interface for HR recruiters to manage candidates, job postings, and the recruitment process.
 
-## Recommended IDE Setup
+## Technology Stack
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+- Svelte/SvelteKit
+- TypeScript
+- Tailwind CSS
+- i18n internationalization
+- JWT authentication
 
-## Need an official Svelte framework?
+## Prerequisites
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+Before you begin, ensure you have the following installed:
 
-## Technical considerations
+- Node.js (v16 or newer)
+- npm or pnpm (pnpm is recommended)
+- Git
 
-**Why use this over SvelteKit?**
+## Installation
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+1. Clone the repository (if you haven't already):
 
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store';
-export default writable(0);
+```bash
+git clone https://github.com/your-username/recruit-mate-app.git
+cd recruit-mate-app/frontend
 ```
+
+2. Install dependencies:
+
+```bash
+# Using npm
+npm install
+
+# OR using pnpm
+pnpm install
+```
+
+3. Set up environment variables:
+
+Create a `.env` file in the root of the frontend directory and add:
+
+```
+PUBLIC_API_URL=http://localhost:3000
+```
+
+## Running the Application
+
+### Development Mode
+
+To start the development server with hot reloading:
+
+```bash
+# Using npm
+npm run dev
+
+# OR using pnpm
+pnpm dev
+```
+
+The application will be available at http://localhost:5173
+
+### Building for Production
+
+To create a production build:
+
+```bash
+# Using npm
+npm run build
+
+# OR using pnpm
+pnpm build
+```
+
+### Previewing the Production Build
+
+To preview the production build locally:
+
+```bash
+# Using npm
+npm run preview
+
+# OR using pnpm
+pnpm preview
+```
+
+## Application Structure
+
+The frontend application follows the SvelteKit file-based routing structure:
+
+- `src/routes/` - Application routes
+- `src/lib/components/` - Reusable UI components
+- `src/lib/stores/` - Svelte stores for state management
+- `src/lib/utils/` - Utility functions
+- `src/lib/i18n/` - Internationalization files
+- `src/lib/services/` - API service functions
+
+## Features
+
+### Authentication
+
+The application uses JWT for authentication. The authentication state is managed using Svelte stores.
+
+### Internationalization
+
+The application supports multiple languages. The translation files are located in `src/lib/i18n/`.
+
+### Responsive Design
+
+The UI is fully responsive and works well on desktop, tablet, and mobile devices.
+
+## Development
+
+### Adding New Routes
+
+To add a new route, create a directory or file in the `src/routes/` directory. SvelteKit uses file-based routing.
+
+### Adding New Components
+
+When creating a new component:
+
+1. Create a new file in `src/lib/components/`
+2. Follow the existing component patterns
+3. Use TypeScript for type safety
+4. Include appropriate documentation
+
+### Working with API
+
+All API interactions should go through the service functions in `src/lib/services/`. This keeps API logic centralized and consistent.
+
+## Deployment
+
+The frontend is designed to be deployed to platforms like Vercel, Netlify, or similar static site hosting services.
+
+### Vercel Deployment
+
+```bash
+vercel
+```
+
+### Netlify Deployment
+
+```bash
+netlify deploy
+```
+
+## License
+
+This project is proprietary and confidential. All rights reserved.
