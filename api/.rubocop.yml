@@ -1,0 +1,65 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'bin/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+  SuggestExtensions: false
+
+require: []
+
+plugins:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-performance
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+    - 'spec/factories/**/*.rb'
+
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*_spec.rb'
+    - 'Gemfile'
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/AbcSize:
+  Max: 20
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 8
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: true
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Rails/FilePath:
+  EnforcedStyle: arguments 
+
+RSpec/AnyInstance:
+  Enabled: false
+

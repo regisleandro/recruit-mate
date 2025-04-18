@@ -1,0 +1,27 @@
+2025-04-14 15:12:08.141 -03 [35622] LOG:  starting PostgreSQL 14.17 (Homebrew) on aarch64-apple-darwin24.2.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+2025-04-14 15:12:08.142 -03 [35622] LOG:  listening on IPv6 address "::1", port 5432
+2025-04-14 15:12:08.142 -03 [35622] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-04-14 15:12:08.142 -03 [35622] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2025-04-14 15:12:08.144 -03 [35623] LOG:  database system was shut down at 2025-04-14 15:09:29 -03
+2025-04-14 15:12:08.147 -03 [35622] LOG:  database system is ready to accept connections
+2025-04-14 15:12:18.299 -03 [35809] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:18.304 -03 [35810] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:19.402 -03 [35811] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:19.407 -03 [35812] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:20.007 -03 [35833] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:20.011 -03 [35834] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:36.090 -03 [35980] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:36.094 -03 [35981] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:39.691 -03 [36023] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:39.695 -03 [36024] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:43.685 -03 [36066] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:43.689 -03 [36067] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:49.942 -03 [36131] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:49.947 -03 [36132] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:50.615 -03 [36153] FATAL:  role "postgres" does not exist
+2025-04-14 15:12:50.619 -03 [36154] FATAL:  role "postgres" does not exist
+2025-04-14 15:13:05.470 -03 [35622] LOG:  received fast shutdown request
+2025-04-14 15:13:05.470 -03 [35622] LOG:  aborting any active transactions
+2025-04-14 15:13:05.472 -03 [35622] LOG:  background worker "logical replication launcher" (PID 35629) exited with exit code 1
+2025-04-14 15:13:05.472 -03 [35624] LOG:  shutting down
+2025-04-14 15:13:05.478 -03 [35622] LOG:  database system is shut down
