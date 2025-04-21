@@ -1,5 +1,6 @@
 import { auth } from '../stores/auth';
 import { get } from 'svelte/store';
+import axios from 'axios';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:3000';
 const API_PREFIX = '/api/v1';
@@ -11,6 +12,32 @@ interface RequestOptions {
   body?: Record<string, unknown>;
   headers?: Record<string, string>;
 }
+
+// Configure axios interceptors to add authorization header to all requests
+axios.interceptors.request.use(
+  (config) => {
+    const authState = get(auth);
+    if (authState.token) {
+      config.headers.Authorization = authState.token;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Handle 401 responses globally
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Log user out on unauthorized responses
+      auth.logout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Makes an authenticated API request using the stored JWT token
@@ -33,7 +60,9 @@ export async function apiRequest<T = Record<string, unknown>>(
   }
 
   // Normalize the endpoint and add the API prefix
-  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith('/')
+    ? endpoint
+    : `/${endpoint}`;
   const url = `${API_URL}${API_PREFIX}${normalizedEndpoint}`;
 
   const config: RequestInit = {
@@ -53,6 +82,16 @@ export async function apiRequest<T = Record<string, unknown>>(
     }
 
     if (!response.ok) {
+      // Try to parse error response if it's JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        throw { 
+          message: `API request failed: ${response.status}`,
+          status: response.status, 
+          ...errorData 
+        };
+      }
       throw new Error(`API request failed: ${response.status}`);
     }
 

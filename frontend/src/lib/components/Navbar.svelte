@@ -33,6 +33,9 @@
       <a href="/jobs"><T key="jobs" /></a>
       <a href="/companies"><T key="companies" /></a>
       <a href="/candidates"><T key="candidates" /></a>
+      <a href="/whatsapp-configuration" class="whatsapp-config-link"
+        ><T key="whatsapp" /></a
+      >
       <button type="button" on:click={handleLogout} class="logout-btn">
         <T key="logout" />
       </button>
@@ -77,6 +80,10 @@
 
   .nav-links a:hover {
     color: #4a90e2;
+  }
+
+  .whatsapp-config-link {
+    color: #25d366 !important;
   }
 
   .register-btn {

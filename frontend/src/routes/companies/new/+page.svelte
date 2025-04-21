@@ -19,8 +19,15 @@
       await createCompany({ name: newCompany.name || '' });
       goto('/companies');
     } catch (err: any) {
-      error = err.message || 'Failed to create company';
-      console.error(error);
+      if (err.errors && Object.keys(err.errors).length > 0) {
+        // Format validation errors from the API
+        error = Object.entries(err.errors)
+          .map(([field, messages]) => `${field}: ${messages}`)
+          .join(', ');
+      } else {
+        error = err.message || 'Failed to create company';
+      }
+      console.error('Company creation error:', err);
       loading = false;
     }
   }
