@@ -62,7 +62,7 @@ function createAuthStore(): AuthStore {
         const data = await response.json();
 
         // Extract user from the response based on Rails API structure
-        const user = data.status.data.user;
+        const user = data.data;
 
         // Store in localStorage
         localStorage.setItem('token', authToken);

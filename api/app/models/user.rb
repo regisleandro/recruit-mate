@@ -8,4 +8,5 @@ class User < ApplicationRecord
          :jwt_authenticatable, jwt_revocation_strategy: self
 
   has_many :companies, dependent: :destroy
+  has_many :recruiters, dependent: :destroy
 end

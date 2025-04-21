@@ -32,6 +32,7 @@ gem 'bootsnap', require: false
 
 gem 'devise'
 gem 'devise-jwt'
+gem 'httparty'
 gem 'jsonapi-serializer'
 gem 'rack-cors'
 # AWS SDK for S3 file storage

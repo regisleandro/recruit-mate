@@ -1,23 +1,37 @@
 Rails.application.routes.draw do
-  resources :candidates
-  resources :jobs
-  resources :companies do
-    resources :jobs, only: [:index]
+  # API namespace for all endpoints
+  namespace :api do
+    namespace :v1 do
+      resources :candidates
+      resources :jobs
+      resources :companies do
+        resources :jobs, only: [:index]
+      end
+      
+      resources :recruiters
+      
+      # WhatsApp Business configuration endpoints
+      resource :whatsapp_business_config, controller: 'whats_app_business_configs', only: [:show, :create, :update, :destroy] do
+        post 'test_message', on: :member
+      end
+      
+      # WhatsApp webhook endpoints
+      get 'whatsapp_webhooks', to: 'whats_app_webhooks#verify'
+      post 'whatsapp_webhooks', to: 'whats_app_webhooks#receive'
+    end
   end
   
-  resources :recruiters
-  
+  # Devise routes
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
     sign_out: 'logout',
     registration: 'signup'
   },
   controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    sessions: 'api/v1/users/sessions',
+    registrations: 'api/v1/users/registrations'
   }
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Defines the root path route ("/")
-  # root "articles#index"
+  
+  # Default route redirects to api/v1
+  root to: redirect('/api/v1')
 end

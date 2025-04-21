@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_30_000001) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_21_143600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -78,8 +78,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_30_000001) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "whats_app_business_configs", force: :cascade do |t|
+    t.string "access_token"
+    t.string "phone_number_id"
+    t.string "business_account_id"
+    t.string "webhook_secret"
+    t.bigint "recruiter_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recruiter_id"], name: "index_whats_app_business_configs_on_recruiter_id"
+  end
+
   add_foreign_key "candidates", "users"
   add_foreign_key "companies", "users"
   add_foreign_key "jobs", "companies"
   add_foreign_key "recruiters", "users"
+  add_foreign_key "whats_app_business_configs", "recruiters"
 end

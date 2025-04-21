@@ -2,6 +2,7 @@ import { auth } from '../stores/auth';
 import { get } from 'svelte/store';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:3000';
+const API_PREFIX = '/api/v1';
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -31,6 +32,10 @@ export async function apiRequest<T = Record<string, unknown>>(
     headers['Authorization'] = token;
   }
 
+  // Normalize the endpoint and add the API prefix
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_URL}${API_PREFIX}${normalizedEndpoint}`;
+
   const config: RequestInit = {
     method: options.method || 'GET',
     headers,
@@ -38,7 +43,7 @@ export async function apiRequest<T = Record<string, unknown>>(
   };
 
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, config);
+    const response = await fetch(url, config);
 
     // Handle unauthorized errors (expired token)
     if (response.status === 401) {

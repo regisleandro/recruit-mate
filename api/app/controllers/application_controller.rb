@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  include RackSessionsFix
+  include RackSessionFix
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   def authenticate_user!
