@@ -29,12 +29,20 @@ class ApplicationController < ActionController::API
 
   def handle_token_verification
     begin
+      # Extract token from Authorization header, handling both formats:
+      # 1. "Bearer TOKEN" format from frontend
+      # 2. Plain token format from tests or direct API calls
+      auth_header = request.headers['Authorization']
+      token = auth_header.start_with?('Bearer ') ? auth_header.split(' ').last : auth_header
+      
       jwt_payload = JWT.decode(
-        request.headers['Authorization'].split.last,
+        token,
         Rails.application.credentials.devise_jwt_secret_key!
       ).first
+      
       @current_user_id = jwt_payload['sub']
-    rescue JWT::DecodeError
+    rescue JWT::DecodeError => e
+      Rails.logger.error("JWT decode error: #{e.message}")
       render_unauthorized('Invalid or expired token')
       return
     end

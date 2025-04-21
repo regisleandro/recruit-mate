@@ -65,4 +65,7 @@ Rails.application.configure do
 
   # Configure mailer for Devise
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  
+  # Allow requests from ngrok
+  config.hosts << /.*\.ngrok-free\.app/
 end

@@ -3,9 +3,9 @@ module Api
     class WhatsAppBusinessConfigsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_whats_app_config, only: %i[show update destroy test_message]
-      before_action :ensure_recruiter, only: %i[create update destroy test_message]
+      before_action :ensure_recruiter_exists, only: %i[create update destroy test_message]
 
-      # GET /api/v1/whatsapp_business_config
+      # GET /api/v1/whatsapp_business_config/:recruiter_id
       def show
         if @whats_app_config
           render json: @whats_app_config, status: :ok
@@ -14,15 +14,16 @@ module Api
         end
       end
 
-      # POST /api/v1/whatsapp_business_config
+      # POST /api/v1/whatsapp_business_config/:recruiter_id
       def create
         # Check if config already exists
-        if current_user.recruiter.whats_app_business_config.present?
+        recruiter = Recruiter.find(params[:recruiter_id])
+        if recruiter.whats_app_business_config.present?
           return render json: { error: 'WhatsApp Business configuration already exists' }, status: :unprocessable_entity
         end
 
         @whats_app_config = WhatsAppBusinessConfig.new(whats_app_config_params)
-        @whats_app_config.recruiter = current_user.recruiter
+        @whats_app_config.recruiter = recruiter
 
         if @whats_app_config.save
           render json: @whats_app_config, status: :created
@@ -31,7 +32,7 @@ module Api
         end
       end
 
-      # PUT/PATCH /api/v1/whatsapp_business_config
+      # PUT/PATCH /api/v1/whatsapp_business_config/:recruiter_id
       def update
         if @whats_app_config.update(whats_app_config_params)
           render json: @whats_app_config, status: :ok
@@ -40,7 +41,7 @@ module Api
         end
       end
 
-      # DELETE /api/v1/whatsapp_business_config
+      # DELETE /api/v1/whatsapp_business_config/:recruiter_id
       def destroy
         if @whats_app_config.destroy
           head :no_content
@@ -49,7 +50,7 @@ module Api
         end
       end
 
-      # POST /api/v1/whatsapp_business_config/test_message
+      # POST /api/v1/whatsapp_business_config/:recruiter_id/test_message
       def test_message
         return render_not_found unless @whats_app_config
         return render_missing_params unless valid_message_params?
@@ -88,14 +89,15 @@ module Api
       end
 
       def set_whats_app_config
-        @whats_app_config = current_user.recruiter&.whats_app_business_config
+        @whats_app_config = Recruiter.find(params[:recruiter_id]).whats_app_business_config
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Recruiter not found' }, status: :not_found
       end
 
-      def ensure_recruiter
-        return if current_user.recruiter.present?
+      def ensure_recruiter_exists
+        return if Recruiter.exists?(params[:recruiter_id])
 
-        render json: { error: 'User must be a recruiter to manage WhatsApp Business configuration' },
-               status: :forbidden
+        render json: { error: 'Recruiter not found' }, status: :not_found
       end
 
       def whats_app_config_params
@@ -103,7 +105,7 @@ module Api
           :access_token,
           :phone_number_id,
           :business_account_id,
-          :webhook_secret
+          :verify_token
         )
       end
 

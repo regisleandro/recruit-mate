@@ -18,7 +18,7 @@ module Api
 
       # POST /companies
       def create
-        @company = Company.new(company_params)
+        @company = current_user.companies.new(company_params)
 
         if @company.save
           render json: CompanySerializer.new(@company).serializable_hash, status: :created
@@ -53,7 +53,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def company_params
-        params.require(:company).permit(:name, :user_id)
+        params.require(:company).permit(:name)
       end
     end
   end
