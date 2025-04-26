@@ -110,6 +110,13 @@
                 <td class="actions-cell">
                   <button
                     type="button"
+                    class="application-btn"
+                    on:click={() => goto(`/jobs/${job.id}/applications`)}
+                  >
+                    <T key="viewApplications" />
+                  </button>
+                  <button
+                    type="button"
                     class="edit-btn"
                     on:click={() => handleEdit(job.id)}
                   >
@@ -308,6 +315,22 @@
   .actions-cell {
     display: flex;
     gap: 0.5rem;
+  }
+
+  .application-btn {
+    background-color: #6772e5;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: background-color 0.2s;
+  }
+
+  .application-btn:hover {
+    background-color: #555bb4;
   }
 
   .edit-btn,

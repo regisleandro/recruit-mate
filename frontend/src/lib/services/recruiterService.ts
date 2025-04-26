@@ -4,7 +4,7 @@ export interface Recruiter {
   id: string;
   name: string;
   prompt: string;
-  telegram_token?: string;
+  openai_key?: string;
 }
 
 interface JSONAPIResource {
@@ -14,7 +14,7 @@ interface JSONAPIResource {
     id: number;
     name: string;
     prompt: string;
-    telegram_token?: string;
+    openai_key?: string;
   };
 }
 
@@ -35,7 +35,7 @@ export async function getRecruiters(): Promise<Recruiter[]> {
       id: item.id,
       name: item.attributes.name,
       prompt: item.attributes.prompt,
-      telegram_token: item.attributes.telegram_token
+      openai_key: item.attributes.openai_key
     }));
   } catch (error) {
     console.error('Error fetching recruiters:', error);
@@ -54,7 +54,7 @@ export async function getRecruiter(id: string): Promise<Recruiter> {
       id: response.data.id,
       name: response.data.attributes.name,
       prompt: response.data.attributes.prompt,
-      telegram_token: response.data.attributes.telegram_token
+      openai_key: response.data.attributes.openai_key
     };
   } catch (error) {
     console.error(`Error fetching recruiter ${id}:`, error);
@@ -76,7 +76,7 @@ export async function createRecruiter(
       id: response.data.id,
       name: response.data.attributes.name,
       prompt: response.data.attributes.prompt,
-      telegram_token: response.data.attributes.telegram_token
+      openai_key: response.data.attributes.openai_key
     };
   } catch (error) {
     console.error('Error creating recruiter:', error);
@@ -102,7 +102,7 @@ export async function updateRecruiter(
       id: response.data.id,
       name: response.data.attributes.name,
       prompt: response.data.attributes.prompt,
-      telegram_token: response.data.attributes.telegram_token
+      openai_key: response.data.attributes.openai_key
     };
   } catch (error) {
     console.error(`Error updating recruiter ${id}:`, error);
