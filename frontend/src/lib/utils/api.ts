@@ -86,10 +86,10 @@ export async function apiRequest<T = Record<string, unknown>>(
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
-        throw { 
+        throw {
           message: `API request failed: ${response.status}`,
-          status: response.status, 
-          ...errorData 
+          status: response.status,
+          ...errorData
         };
       }
       throw new Error(`API request failed: ${response.status}`);

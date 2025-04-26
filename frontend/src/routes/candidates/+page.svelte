@@ -14,6 +14,7 @@
   let error = '';
   let showConfirmDelete = false;
   let candidateToDelete: Candidate | null = null;
+  let pageTitle = 'Todos';
 
   onMount(async () => {
     try {
@@ -57,12 +58,28 @@
       console.error(error);
     }
   }
+
+  function goBack() {
+    window.history.back();
+  }
+
+  $: filteredCandidates = candidates;
 </script>
 
 <ProtectedRoute>
   <div class="candidates-page">
+    <!-- Header with back button and job title -->
     <div class="page-header">
-      <h1><T key="candidatesList" /></h1>
+      <div class="header-left">
+        <button
+          type="button"
+          class="back-button"
+          on:click={goBack}
+          aria-label="Go back"
+        >
+          &larr; <T key="back" />
+        </button>
+      </div>
       <button type="button" class="create-button" on:click={handleCreate}>
         <T key="addCandidate" />
       </button>
@@ -76,7 +93,7 @@
       <div class="error-message">
         {error}
       </div>
-    {:else if candidates.length === 0}
+    {:else if filteredCandidates.length === 0}
       <div class="empty-state">
         <T key="noCandidates" />
       </div>
@@ -87,7 +104,6 @@
             <tr>
               <th><T key="candidateName" /></th>
               <th><T key="candidateCPF" /></th>
-              <th><T key="candidateCellphone" /></th>
               <th><T key="candidateCurriculum" /></th>
               <th class="actions-column"><T key="actions" /></th>
             </tr>
@@ -96,8 +112,7 @@
             {#each candidates as candidate (candidate.id)}
               <tr>
                 <td>{candidate.name}</td>
-                <td>{candidate.cpf}</td>
-                <td>{candidate.cellphone_number || '-'}</td>
+                <td>{candidate.cpf || '-'}</td>
                 <td>
                   {#if candidate.curriculum_url}
                     <a

@@ -23,12 +23,15 @@
 
 <nav>
   <div class="logo">
-    <a href="/">Recruit Mate</a>
+    {#if $auth.isAuthenticated}
+      <a href="/dashboard">Recruit Mate</a>
+    {:else}
+      <a href="/">Recruit Mate</a>
+    {/if}
   </div>
 
   <div class="nav-links">
     {#if $auth.isAuthenticated}
-      <a href="/dashboard"><T key="home" /></a>
       <a href="/recruiters"><T key="recruiters" /></a>
       <a href="/jobs"><T key="jobs" /></a>
       <a href="/companies"><T key="companies" /></a>

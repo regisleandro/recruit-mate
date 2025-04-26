@@ -32,14 +32,16 @@ export interface TestMessageResponse {
 
 export interface ErrorDetails {
   error: string;
-  details?: any;
+  details?: unknown;
 }
 
 const whatsAppBusinessConfigService = {
   /**
    * Get the WhatsApp Business configuration for a specific recruiter
    */
-  getConfig: async (recruiterId: string): Promise<WhatsAppBusinessConfig | null> => {
+  getConfig: async (
+    recruiterId: string
+  ): Promise<WhatsAppBusinessConfig | null> => {
     try {
       const response = await axios.get(
         `${API_URL}/api/v1/recruiters/${recruiterId}/whatsapp_business_config`
@@ -89,7 +91,9 @@ const whatsAppBusinessConfigService = {
    * Delete the WhatsApp Business configuration for a recruiter
    */
   deleteConfig: async (recruiterId: string): Promise<void> => {
-    await axios.delete(`${API_URL}/api/v1/recruiters/${recruiterId}/whatsapp_business_config`);
+    await axios.delete(
+      `${API_URL}/api/v1/recruiters/${recruiterId}/whatsapp_business_config`
+    );
   },
 
   /**

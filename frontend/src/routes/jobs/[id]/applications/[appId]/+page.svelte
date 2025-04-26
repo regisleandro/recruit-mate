@@ -4,32 +4,32 @@
   import { page } from '$app/stores';
   import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
   import T from '$lib/i18n/T.svelte';
-  import { 
-    getJobApplication, 
-    updateJobApplication, 
+  import {
+    getJobApplication,
+    updateJobApplication,
     addNote,
-    JobApplicationStatusLabels 
+    JobApplicationStatusLabels
   } from '$lib/services/jobApplicationService';
   import type { JobApplication } from '$lib/services/jobApplicationService';
 
   const jobId = $page.params.id;
   const appId = $page.params.appId;
-  
+
   let application: JobApplication | null = null;
   let loading = true;
   let error = '';
   let success = '';
-  
+
   // Form states
   let showStatusForm = false;
   let showNoteForm = false;
   let newStatus = '';
   let newNote = '';
-  
+
   onMount(async () => {
     await loadApplication();
   });
-  
+
   async function loadApplication() {
     try {
       loading = true;
@@ -59,17 +59,17 @@
 
   async function handleStatusUpdate() {
     if (!application || !newStatus) return;
-    
+
     try {
       loading = true;
       error = '';
-      
+
       await updateJobApplication(appId, { status: newStatus });
-      
+
       success = 'Status updated successfully';
       await loadApplication();
       showStatusForm = false;
-      
+
       // Clear success message after delay
       setTimeout(() => {
         success = '';
@@ -84,18 +84,18 @@
 
   async function handleAddNote() {
     if (!application || !newNote.trim()) return;
-    
+
     try {
       loading = true;
       error = '';
-      
+
       await addNote(appId, newNote);
-      
+
       success = 'Note added successfully';
       await loadApplication();
       newNote = '';
       showNoteForm = false;
-      
+
       // Clear success message after delay
       setTimeout(() => {
         success = '';
@@ -111,10 +111,13 @@
   function handleBack() {
     goto(`/jobs/${jobId}/applications`);
   }
-  
+
   // Format notes for display
-  $: noteEntries = application?.notes 
-    ? application.notes.split('---').map(entry => entry.trim()).filter(entry => entry)
+  $: noteEntries = application?.notes
+    ? application.notes
+        .split('---')
+        .map((entry) => entry.trim())
+        .filter((entry) => entry)
     : [];
 </script>
 
@@ -122,7 +125,7 @@
   <div class="application-detail-page">
     <div class="page-header">
       <div class="header-left">
-        <button class="back-button" on:click={handleBack}>
+        <button type="button" class="back-button" on:click={handleBack}>
           &larr; <T key="back" />
         </button>
         <h1><T key="jobApplicationDetails" /></h1>
@@ -147,19 +150,25 @@
           <div class="application-meta">
             <div class="application-id">ID: {application.id}</div>
             <div class="application-date">
-              <T key="applicationDate" />: {new Date(application.createdAt).toLocaleDateString()}
+              <T key="applicationDate" />: {new Date(
+                application.createdAt
+              ).toLocaleDateString()}
             </div>
           </div>
           <div class="application-status">
             <span class="status-badge status-{application.status}">
               {application.statusLabel}
             </span>
-            <button class="change-status-btn" on:click={toggleStatusForm}>
+            <button
+              type="button"
+              class="change-status-btn"
+              on:click={toggleStatusForm}
+            >
               <T key="changeStatus" />
             </button>
           </div>
         </div>
-        
+
         {#if showStatusForm}
           <div class="status-form">
             <h3><T key="changeStatus" /></h3>
@@ -169,11 +178,16 @@
               {/each}
             </select>
             <div class="form-actions">
-              <button class="cancel-btn" on:click={toggleStatusForm}>
+              <button
+                type="button"
+                class="cancel-btn"
+                on:click={toggleStatusForm}
+              >
                 <T key="cancel" />
               </button>
-              <button 
-                class="submit-btn" 
+              <button
+                type="submit"
+                class="submit-btn"
                 on:click={handleStatusUpdate}
                 disabled={loading || newStatus === application.status}
               >
@@ -182,18 +196,20 @@
             </div>
           </div>
         {/if}
-        
+
         <div class="sections-container">
           <div class="section candidate-section">
             <h2><T key="candidateInfo" /></h2>
             {#if application.candidate}
               <div class="candidate-card">
                 <h3>{application.candidate.name}</h3>
-                <p class="candidate-contact">{application.candidate.cellphone_number}</p>
+                <p class="candidate-contact">
+                  {application.candidate.cellphone_number}
+                </p>
                 {#if application.candidate.curriculum_url}
-                  <a 
-                    href={application.candidate.curriculum_url} 
-                    target="_blank" 
+                  <a
+                    href={application.candidate.curriculum_url}
+                    target="_blank"
                     rel="noopener noreferrer"
                     class="curriculum-link"
                   >
@@ -213,26 +229,33 @@
               </div>
             {/if}
           </div>
-          
+
           <div class="section job-section">
             <h2><T key="jobInfo" /></h2>
             {#if application.job}
               <div class="job-card">
-                <h3>{application.job.description.substring(0, 100)}{application.job.description.length > 100 ? '...' : ''}</h3>
+                <h3>
+                  {application.job.description.substring(0, 100)}{application
+                    .job.description.length > 100
+                    ? '...'
+                    : ''}
+                </h3>
                 <div class="job-info">
                   <div class="job-section">
                     <h4><T key="jobKeywords" /></h4>
                     <p>{application.job.keywords || 'N/A'}</p>
                   </div>
-                  
+
                   <div class="job-section">
                     <h4><T key="jobBenefits" /></h4>
                     <p>{application.job.benefits || 'N/A'}</p>
                   </div>
-                  
+
                   <div class="job-status">
                     <h4><T key="jobStatus" /></h4>
-                    <span class="status-badge status-job-{application.job.status}">
+                    <span
+                      class="status-badge status-job-{application.job.status}"
+                    >
                       {application.job.statusLabel}
                     </span>
                   </div>
@@ -245,15 +268,19 @@
             {/if}
           </div>
         </div>
-        
+
         <div class="section notes-section">
           <div class="notes-header">
             <h2><T key="applicationNotes" /></h2>
-            <button class="add-note-btn" on:click={toggleNoteForm}>
+            <button
+              type="button"
+              class="add-note-btn"
+              on:click={toggleNoteForm}
+            >
               <T key="addNote" />
             </button>
           </div>
-          
+
           {#if showNoteForm}
             <div class="note-form">
               <textarea
@@ -262,11 +289,16 @@
                 placeholder={$page.data.translations.noteText}
               ></textarea>
               <div class="form-actions">
-                <button class="cancel-btn" on:click={toggleNoteForm}>
+                <button
+                  type="button"
+                  class="cancel-btn"
+                  on:click={toggleNoteForm}
+                >
                   <T key="cancel" />
                 </button>
-                <button 
-                  class="submit-btn" 
+                <button
+                  type="submit"
+                  class="submit-btn"
                   on:click={handleAddNote}
                   disabled={loading || !newNote.trim()}
                 >
@@ -275,7 +307,7 @@
               </div>
             </div>
           {/if}
-          
+
           <div class="notes-list">
             {#if noteEntries.length === 0}
               <div class="empty-notes">
@@ -286,7 +318,9 @@
                 <div class="note-entry">
                   {#if note.includes('\n')}
                     {@const [timestamp, ...noteContent] = note.split('\n')}
-                    <div class="note-timestamp">{new Date(timestamp).toLocaleString()}</div>
+                    <div class="note-timestamp">
+                      {new Date(timestamp).toLocaleString()}
+                    </div>
                     <div class="note-content">{noteContent.join('\n')}</div>
                   {:else}
                     <div class="note-content">{note}</div>
@@ -343,12 +377,12 @@
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #eee;
   }
-  
+
   h3 {
     font-size: 1.1rem;
     margin: 0 0 0.75rem 0;
   }
-  
+
   h4 {
     font-size: 0.9rem;
     margin: 0.5rem 0;
@@ -384,7 +418,7 @@
     overflow: hidden;
     padding: 0;
   }
-  
+
   .application-header {
     display: flex;
     justify-content: space-between;
@@ -393,18 +427,18 @@
     background-color: #f9f9f9;
     border-bottom: 1px solid #eee;
   }
-  
+
   .application-meta {
     font-size: 0.9rem;
     color: #666;
   }
-  
+
   .application-status {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-  
+
   .change-status-btn {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
@@ -414,11 +448,11 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .change-status-btn:hover {
     background-color: #e0e0e0;
   }
-  
+
   .status-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
@@ -427,20 +461,20 @@
     font-weight: 500;
     text-transform: capitalize;
   }
-  
+
   .sections-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     padding: 1.5rem;
   }
-  
+
   .section {
     background-color: #f9f9f9;
     border-radius: 8px;
     padding: 1.5rem;
   }
-  
+
   .candidate-card,
   .job-card {
     background-color: white;
@@ -448,41 +482,41 @@
     padding: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  
+
   .candidate-contact {
     color: #666;
     margin: 0.5rem 0;
   }
-  
+
   .curriculum-link {
     display: inline-block;
     margin: 0.5rem 0;
     color: #4a90e2;
     text-decoration: none;
   }
-  
+
   .curriculum-link:hover {
     text-decoration: underline;
   }
-  
+
   .curriculum-summary {
     margin-top: 1rem;
     font-size: 0.9rem;
   }
-  
+
   .job-info {
     margin-top: 1rem;
   }
-  
+
   .job-section {
     margin-bottom: 1rem;
   }
-  
+
   .job-section p {
     margin: 0;
     font-size: 0.9rem;
   }
-  
+
   .status-badge.status-pending {
     background-color: #f8f9fa;
     color: #495057;
@@ -532,33 +566,33 @@
     background-color: #fafafa;
     color: #757575;
   }
-  
+
   .status-badge.status-job-draft {
     background-color: #f5f5f5;
     color: #555;
   }
-  
+
   .status-badge.status-job-open {
     background-color: #e0f2f1;
     color: #00695c;
   }
-  
+
   .status-badge.status-job-closed {
     background-color: #f3e5f5;
     color: #6a1b9a;
   }
-  
+
   .notes-section {
     grid-column: 1 / -1;
     margin-top: 1.5rem;
   }
-  
+
   .notes-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .add-note-btn {
     background-color: #4a90e2;
     color: white;
@@ -569,15 +603,15 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .add-note-btn:hover {
     background-color: #357abd;
   }
-  
+
   .notes-list {
     margin-top: 1rem;
   }
-  
+
   .note-entry {
     background-color: white;
     border-radius: 4px;
@@ -585,24 +619,24 @@
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  
+
   .note-timestamp {
     font-size: 0.8rem;
     color: #777;
     margin-bottom: 0.5rem;
   }
-  
+
   .note-content {
     font-size: 0.9rem;
     white-space: pre-line;
   }
-  
+
   .empty-notes {
     text-align: center;
     padding: 2rem;
     color: #999;
   }
-  
+
   .status-form,
   .note-form {
     background-color: #f9f9f9;
@@ -611,7 +645,7 @@
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
-  
+
   select,
   textarea {
     width: 100%;
@@ -622,18 +656,18 @@
     background-color: white;
     margin-bottom: 1rem;
   }
-  
+
   textarea {
     resize: vertical;
     min-height: 100px;
   }
-  
+
   .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
   }
-  
+
   .cancel-btn {
     background-color: #f0f0f0;
     color: #333;
@@ -644,11 +678,11 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .cancel-btn:hover {
     background-color: #e0e0e0;
   }
-  
+
   .submit-btn {
     background-color: #4a90e2;
     color: white;
@@ -659,11 +693,11 @@
     cursor: pointer;
     transition: background-color 0.2s;
   }
-  
+
   .submit-btn:hover:not(:disabled) {
     background-color: #357abd;
   }
-  
+
   .submit-btn:disabled {
     background-color: #a9c6ea;
     cursor: not-allowed;
@@ -674,4 +708,4 @@
       grid-template-columns: 1fr;
     }
   }
-</style> 
+</style>

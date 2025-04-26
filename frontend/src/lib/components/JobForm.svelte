@@ -11,6 +11,7 @@
   import { onMount } from 'svelte';
 
   export let job: Partial<Job> = {
+    title: '',
     description: '',
     benefits: '',
     keywords: '',
@@ -46,6 +47,10 @@
       if (!job.endTime) {
         job.endTime = parseTimeToDate('18:00');
       }
+
+      // Console log for debugging
+      console.log('Job data:', job);
+      console.log('Companies:', companies);
     } catch (error) {
       console.error('Error loading companies:', error);
       loadingCompanies = false;
@@ -111,9 +116,25 @@
         <select id="company" bind:value={job.companyId} required>
           <option value="" disabled>Select a company</option>
           {#each companies as company}
-            <option value={company.id}>{company.name}</option>
+            <option value={company.id} selected={company.id === job.companyId}
+              >{company.name}</option
+            >
           {/each}
         </select>
+      </div>
+
+      <div class="form-group">
+        <label for="title">
+          <T key="jobTitle" />
+          <span class="required">*</span>
+        </label>
+        <input
+          id="title"
+          type="text"
+          bind:value={job.title}
+          required
+          placeholder="Job title"
+        />
       </div>
 
       <div class="form-group">

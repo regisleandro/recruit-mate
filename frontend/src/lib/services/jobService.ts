@@ -1,8 +1,8 @@
 import { apiRequest } from '$lib/utils/api';
-import type { Company } from './companyService';
 
 export interface Job {
   id: string;
+  title: string;
   description: string;
   benefits: string;
   keywords: string;
@@ -13,7 +13,10 @@ export interface Job {
   statusLabel: string;
   prompt: string;
   companyId: string;
-  company?: Company;
+  company?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface JSONAPIResource {
@@ -21,6 +24,7 @@ interface JSONAPIResource {
   type: string;
   attributes: {
     id: number;
+    title: string;
     description: string;
     benefits: string;
     keywords: string;
@@ -33,6 +37,10 @@ interface JSONAPIResource {
     company_id: string;
     created_at: string;
     updated_at: string;
+    company?: {
+      id: string;
+      name: string;
+    };
   };
   relationships?: {
     company: {
@@ -63,10 +71,11 @@ interface JobDetailResponse {
 
 function transformJob(
   resource: JSONAPIResource,
-  included?: IncludedResource[]
+  _included?: IncludedResource[]
 ): Job {
   const job: Job = {
     id: resource.id,
+    title: resource.attributes.title,
     description: resource.attributes.description,
     benefits: resource.attributes.benefits,
     keywords: resource.attributes.keywords,
@@ -76,23 +85,9 @@ function transformJob(
     status: resource.attributes.status,
     statusLabel: resource.attributes.status_label,
     prompt: resource.attributes.prompt,
-    companyId: resource.attributes.company_id
+    companyId: resource.attributes.company_id,
+    company: resource.attributes.company || { id: '', name: '' }
   };
-
-  if (included && resource.relationships && resource.relationships.company) {
-    const companyData = included.find(
-      (item) =>
-        item.type === 'company' &&
-        item.id === resource.relationships!.company.data.id
-    );
-
-    if (companyData) {
-      job.company = {
-        id: companyData.id,
-        name: companyData.attributes.name as string
-      };
-    }
-  }
 
   return job;
 }
@@ -127,6 +122,7 @@ export async function createJob(
   try {
     // Transform frontend format to API format
     const jobData = {
+      title: job.title,
       description: job.description,
       benefits: job.benefits,
       keywords: job.keywords,
@@ -157,6 +153,7 @@ export async function updateJob(
   try {
     // Transform frontend format to API format
     const jobData: {
+      title?: string;
       description?: string;
       benefits?: string;
       keywords?: string;
@@ -167,6 +164,7 @@ export async function updateJob(
       prompt?: string;
     } = {};
 
+    if (job.title !== undefined) jobData.title = job.title;
     if (job.description !== undefined) jobData.description = job.description;
     if (job.benefits !== undefined) jobData.benefits = job.benefits;
     if (job.keywords !== undefined) jobData.keywords = job.keywords;

@@ -5,11 +5,11 @@
   import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
   import T from '$lib/i18n/T.svelte';
   import { getJob } from '$lib/services/jobService';
-  import { 
-    getJobApplications, 
+  import {
+    getJobApplications,
     deleteJobApplication,
     JobApplicationStatus,
-    JobApplicationStatusLabels 
+    JobApplicationStatusLabels
   } from '$lib/services/jobApplicationService';
   import { getCandidates } from '$lib/services/candidateService';
   import type { Job } from '$lib/services/jobService';
@@ -37,10 +37,10 @@
       loading = true;
       // Load job data
       job = await getJob(jobId);
-      
+
       // Load applications for this job
       applications = await getJobApplications({ jobId });
-      
+
       // Load all candidates for filtering options
       candidates = await getCandidates();
     } catch (err: any) {
@@ -74,7 +74,9 @@
 
     try {
       await deleteJobApplication(applicationToDelete.id);
-      applications = applications.filter((a) => a.id !== applicationToDelete?.id);
+      applications = applications.filter(
+        (a) => a.id !== applicationToDelete?.id
+      );
       closeDeleteConfirm();
     } catch (err: any) {
       error = err.message || 'Failed to delete application';
@@ -91,35 +93,39 @@
   }
 
   // Computed property for filtered applications
-  $: filteredApplications = applications.filter(application => {
+  $: filteredApplications = applications.filter((application) => {
     // Filter by search query (candidate name)
     if (searchQuery && application.candidate?.name) {
-      if (!application.candidate.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (
+        !application.candidate.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      ) {
         return false;
       }
     }
-    
+
     // Filter by status
     if (statusFilter && application.status !== statusFilter) {
       return false;
     }
-    
+
     // Filter by candidate
     if (candidateFilter && application.candidateId !== candidateFilter) {
       return false;
     }
-    
+
     // Filter by date range
     if (startDateFilter || endDateFilter) {
       const appDate = new Date(application.createdAt);
-      
+
       if (startDateFilter) {
         const startDate = new Date(startDateFilter);
         if (appDate < startDate) {
           return false;
         }
       }
-      
+
       if (endDateFilter) {
         const endDate = new Date(endDateFilter);
         // Set the end date to the end of the day
@@ -129,7 +135,7 @@
         }
       }
     }
-    
+
     return true;
   });
 </script>
@@ -138,10 +144,14 @@
   <div class="applications-page">
     <div class="page-header">
       <div class="header-left">
-        <button class="back-button" on:click={() => goto('/jobs')}>
+        <button
+          type="button"
+          class="back-button"
+          on:click={() => goto('/jobs')}
+        >
           &larr; <T key="back" />
         </button>
-        <h1><T key="jobApplicationsList" /> {#if job}({job.description.substring(0, 30)}{job.description.length > 30 ? '...' : ''}){/if}</h1>
+        <h1><T key="jobApplicationsList" />: <b>{job?.title}</b></h1>
       </div>
       <button type="button" class="create-button" on:click={handleCreate}>
         <T key="addApplication" />
@@ -150,13 +160,13 @@
 
     <div class="filter-section">
       <div class="search-box">
-        <input 
-          type="text" 
-          bind:value={searchQuery} 
-          placeholder="Search candidate by name" 
+        <input
+          type="text"
+          bind:value={searchQuery}
+          placeholder="Search candidate by name"
         />
       </div>
-      
+
       <div class="filters">
         <select bind:value={statusFilter}>
           <option value=""><T key="allStatuses" /></option>
@@ -164,26 +174,26 @@
             <option value={key}>{label}</option>
           {/each}
         </select>
-        
+
         <select bind:value={candidateFilter}>
           <option value=""><T key="allCandidates" /></option>
           {#each candidates as candidate}
             <option value={candidate.id}>{candidate.name}</option>
           {/each}
         </select>
-        
+
         <div class="date-filter">
           <label>
-            <T key="fromDate" />: 
+            <T key="fromDate" />:
             <input type="date" bind:value={startDateFilter} />
           </label>
           <label>
-            <T key="toDate" />: 
+            <T key="toDate" />:
             <input type="date" bind:value={endDateFilter} />
           </label>
         </div>
-        
-        <button class="clear-filters" on:click={resetFilters}>
+
+        <button type="button" class="clear-filters" on:click={resetFilters}>
           <T key="clearFilters" />
         </button>
       </div>
@@ -250,7 +260,8 @@
         <div class="delete-confirm-modal">
           <h3><T key="confirmDeleteApplication" /></h3>
           <p>
-            <strong><T key="candidateName" />:</strong> {applicationToDelete.candidate?.name || ''}
+            <strong><T key="candidateName" />:</strong>
+            {applicationToDelete.candidate?.name || ''}
           </p>
           <div class="modal-actions">
             <button
@@ -586,4 +597,4 @@
   .confirm-delete-btn:hover {
     background-color: #c0392b;
   }
-</style> 
+</style>

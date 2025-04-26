@@ -7,7 +7,7 @@
   import { currentLang } from '$lib/i18n/store';
   import { getRecruiters } from '$lib/services/recruiterService';
   import type { Recruiter } from '$lib/services/recruiterService';
-  
+
   let recruiters: Recruiter[] = [];
   let selectedRecruiterId: string = '';
   let loading = true;
@@ -39,7 +39,9 @@
 <ProtectedRoute>
   <div class="container mx-auto py-8">
     <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-bold"><T key="whatsappConfiguration.title" /></h1>
+      <h1 class="text-3xl font-bold">
+        <T key="whatsappConfiguration.title" />
+      </h1>
     </div>
 
     <p class="mb-6 text-gray-700">
@@ -72,7 +74,10 @@
     {:else}
       <div class="bg-white rounded-lg shadow p-6 mb-6">
         <div class="mb-4">
-          <label for="recruiter" class="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            for="recruiter"
+            class="block text-sm font-medium text-gray-700 mb-1"
+          >
             <T key="whatsappConfiguration.selectRecruiter" />
           </label>
           <select
@@ -85,21 +90,24 @@
             {/each}
           </select>
         </div>
-        
+
         {#if selectedRecruiterId}
           <WhatsAppBusinessConfigForm {selectedRecruiterId} />
         {/if}
       </div>
 
       <div class="mt-8 p-4 bg-gray-100 rounded-lg">
-        <h2 class="text-xl font-semibold mb-2"><T key="whatsAppSetupTitle" /></h2>
+        <h2 class="text-xl font-semibold mb-2">
+          <T key="whatsAppSetupTitle" />
+        </h2>
         <ol class="list-decimal ml-6 space-y-2">
           {#each setupSteps as step, i}
             <li>
               {step}
               {#if i === 7}
                 <br />
-                <code class="bg-gray-200 p-1 text-sm rounded">{webhookUrl}</code>
+                <code class="bg-gray-200 p-1 text-sm rounded">{webhookUrl}</code
+                >
               {/if}
             </li>
           {/each}

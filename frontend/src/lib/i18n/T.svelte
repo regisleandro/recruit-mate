@@ -8,7 +8,7 @@
   function getNestedTranslation(obj: any, path: string): string {
     const keys = path.split('.');
     let result = obj;
-    
+
     for (const k of keys) {
       if (result && typeof result === 'object' && k in result) {
         result = result[k];
@@ -16,7 +16,7 @@
         return path; // Return the key path if translation not found
       }
     }
-    
+
     return result;
   }
 </script>

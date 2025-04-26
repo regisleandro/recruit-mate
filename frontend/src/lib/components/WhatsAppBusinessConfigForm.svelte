@@ -43,8 +43,9 @@
     try {
       loading = true;
       error = '';
-      
-      existingConfig = await whatsAppBusinessConfigService.getConfig(selectedRecruiterId);
+
+      existingConfig =
+        await whatsAppBusinessConfigService.getConfig(selectedRecruiterId);
       if (existingConfig) {
         config = {
           access_token: existingConfig.access_token,
@@ -73,22 +74,28 @@
     error = '';
     success = '';
     saving = true;
-    
+
     try {
       if (existingConfig) {
-        existingConfig =
-          await whatsAppBusinessConfigService.updateConfig(selectedRecruiterId, config);
+        existingConfig = await whatsAppBusinessConfigService.updateConfig(
+          selectedRecruiterId,
+          config
+        );
         // Show success message using the translation key
-        success = $currentLang && translations[$currentLang].whatsAppUpdated || 
+        success =
+          ($currentLang && translations[$currentLang].whatsAppUpdated) ||
           'WhatsApp Business configuration updated successfully';
       } else {
-        existingConfig =
-          await whatsAppBusinessConfigService.createConfig(selectedRecruiterId, config);
+        existingConfig = await whatsAppBusinessConfigService.createConfig(
+          selectedRecruiterId,
+          config
+        );
         // Show success message using the translation key
-        success = $currentLang && translations[$currentLang].whatsAppCreated || 
+        success =
+          ($currentLang && translations[$currentLang].whatsAppCreated) ||
           'WhatsApp Business configuration created successfully';
       }
-      
+
       // Update the form with the returned values
       config = {
         access_token: existingConfig.access_token,
@@ -96,14 +103,16 @@
         business_account_id: existingConfig.business_account_id,
         verify_token: existingConfig.verify_token
       };
-      
+
       // Clear success message after a few seconds
       setTimeout(() => {
         success = '';
       }, 3000);
     } catch (err: unknown) {
       // Type guard for axios error with response data
-      const axiosError = err as { response?: { data?: { errors?: string[], error?: string } } };
+      const axiosError = err as {
+        response?: { data?: { errors?: string[]; error?: string } };
+      };
       if (axiosError?.response?.data?.errors) {
         error = axiosError.response.data.errors.join(', ');
       } else if (axiosError?.response?.data?.error) {
@@ -121,17 +130,18 @@
 
   const handleDelete = async () => {
     // Get translation for the confirmation message
-    const confirmMessage = $currentLang && translations[$currentLang].confirmDeleteWhatsApp || 
+    const confirmMessage =
+      ($currentLang && translations[$currentLang].confirmDeleteWhatsApp) ||
       'Are you sure you want to delete this WhatsApp Business configuration?';
-      
+
     if (!confirm(confirmMessage)) {
       return;
     }
-    
+
     error = '';
     success = '';
     saving = true;
-    
+
     try {
       await whatsAppBusinessConfigService.deleteConfig(selectedRecruiterId);
       existingConfig = null;
@@ -141,11 +151,12 @@
         business_account_id: '',
         verify_token: ''
       };
-      
+
       // Show success message using the translation key
-      success = $currentLang && translations[$currentLang].whatsAppDeleted ||
+      success =
+        ($currentLang && translations[$currentLang].whatsAppDeleted) ||
         'WhatsApp Business configuration deleted successfully';
-      
+
       // Clear success message after a few seconds
       setTimeout(() => {
         success = '';
@@ -166,18 +177,18 @@
     testMessageLoading = true;
     testMessageResult = null;
     error = '';
-    
+
     try {
       if (!testMessage.phone_number || !testMessage.message) {
         error = 'Phone number and message are required';
         return;
       }
-      
+
       testMessageResult = await whatsAppBusinessConfigService.sendTestMessage(
         selectedRecruiterId,
         testMessage
       );
-      
+
       // Reset the message input (but keep the phone number)
       testMessage.message = '';
     } catch (err: unknown) {
@@ -213,7 +224,7 @@
     try {
       await navigator.clipboard.writeText(text);
       copied = true;
-      
+
       // Reset the copied state after 2 seconds
       setTimeout(() => {
         copied = false;
@@ -224,14 +235,15 @@
   };
 
   const generateRandomString = (length: number): string => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     const charactersLength = characters.length;
-    
+
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-    
+
     return result;
   };
 </script>
@@ -258,7 +270,10 @@
           id="access_token"
           bind:value={config.access_token}
           class="w-full p-2 border border-gray-300 rounded"
-          placeholder={$currentLang ? translations[$currentLang]?.whatsappConfiguration?.accessTokenPlaceholder : "Enter the WhatsApp access token"}
+          placeholder={$currentLang
+            ? translations[$currentLang]?.whatsappConfiguration
+                ?.accessTokenPlaceholder
+            : 'Enter the WhatsApp access token'}
           required
         />
       </div>
@@ -296,15 +311,14 @@
       </div>
 
       <div class="form-group">
-        <label
-          for="verify_token"
-          class="block font-medium text-gray-700 mb-1"
-        >
+        <label for="verify_token" class="block font-medium text-gray-700 mb-1">
           <T key="verifyToken" />
         </label>
         <div class="flex items-center">
           {#if config.verify_token}
-            <div class="flex-1 p-2 border border-gray-300 rounded-l bg-gray-50 font-mono text-sm">
+            <div
+              class="flex-1 p-2 border border-gray-300 rounded-l bg-gray-50 font-mono text-sm"
+            >
               {config.verify_token.substring(0, 4)}
               {'•'.repeat(8)}
               {config.verify_token.substring(config.verify_token.length - 4)}
@@ -315,7 +329,10 @@
               id="verify_token"
               bind:value={config.verify_token}
               class="flex-1 p-2 border border-gray-300 rounded-l"
-              placeholder={$currentLang && translations[$currentLang]?.whatsappConfiguration?.verifyTokenPlaceholder || "No token set"}
+              placeholder={($currentLang &&
+                translations[$currentLang]?.whatsappConfiguration
+                  ?.verifyTokenPlaceholder) ||
+                'No token set'}
               required
             />
           {/if}
@@ -385,7 +402,10 @@
               type="tel"
               id="phone_number"
               bind:value={testMessage.phone_number}
-              placeholder={$currentLang && translations[$currentLang]?.whatsappConfiguration?.phoneNumberPlaceholder || "+1234567890"}
+              placeholder={($currentLang &&
+                translations[$currentLang]?.whatsappConfiguration
+                  ?.phoneNumberPlaceholder) ||
+                '+1234567890'}
               class="w-full p-2 border border-gray-300 rounded"
               required
             />
@@ -450,7 +470,9 @@
           <button
             type="button"
             on:click={() => copyToClipboard(newToken)}
-            class="{copied ? 'bg-green-500 text-white' : 'bg-gray-200'} p-2 rounded-r hover:bg-gray-300"
+            class="{copied
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-200'} p-2 rounded-r hover:bg-gray-300"
           >
             {#if copied}
               ✓

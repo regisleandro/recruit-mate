@@ -93,7 +93,9 @@ function transformJobApplication(
   const jobApplication: JobApplication = {
     id: resource.id,
     status: resource.attributes.status,
-    statusLabel: JobApplicationStatusLabels[resource.attributes.status] || resource.attributes.status,
+    statusLabel:
+      JobApplicationStatusLabels[resource.attributes.status] ||
+      resource.attributes.status,
     notes: resource.attributes.notes,
     candidateId: resource.attributes.candidate_id,
     jobId: resource.attributes.job_id,
@@ -114,8 +116,11 @@ function transformJobApplication(
           id: candidateData.id,
           name: candidateData.attributes.name as string,
           curriculum: null,
-          curriculum_url: candidateData.attributes.curriculum_url as string | null,
-          curriculum_summary: candidateData.attributes.curriculum_summary as string,
+          curriculum_url: candidateData.attributes.curriculum_url as
+            | string
+            | null,
+          curriculum_summary: candidateData.attributes
+            .curriculum_summary as string,
           cellphone_number: candidateData.attributes.cellphone_number as string,
           cpf: candidateData.attributes.cpf as string,
           created_at: candidateData.attributes.created_at as string,
@@ -127,8 +132,7 @@ function transformJobApplication(
     if (resource.relationships.job) {
       const jobData = included.find(
         (item) =>
-          item.type === 'job' &&
-          item.id === resource.relationships!.job.data.id
+          item.type === 'job' && item.id === resource.relationships!.job.data.id
       );
 
       if (jobData) {
@@ -158,15 +162,16 @@ export async function getJobApplications(
   try {
     let endpoint = '/job_applications';
     const queryParams: string[] = [];
-    
+
     if (params.jobId) queryParams.push(`job_id=${params.jobId}`);
-    if (params.candidateId) queryParams.push(`candidate_id=${params.candidateId}`);
+    if (params.candidateId)
+      queryParams.push(`candidate_id=${params.candidateId}`);
     if (params.status) queryParams.push(`status=${params.status}`);
-    
+
     if (queryParams.length > 0) {
       endpoint += `?${queryParams.join('&')}`;
     }
-    
+
     const response = await apiRequest<JobApplicationResponse>(endpoint);
 
     return (response.data || []).map((item) =>
@@ -180,7 +185,9 @@ export async function getJobApplications(
 
 export async function getJobApplication(id: string): Promise<JobApplication> {
   try {
-    const response = await apiRequest<JobApplicationDetailResponse>(`/job_applications/${id}`);
+    const response = await apiRequest<JobApplicationDetailResponse>(
+      `/job_applications/${id}`
+    );
     return transformJobApplication(response.data, response.included);
   } catch (error) {
     console.error(`Error fetching job application ${id}:`, error);
@@ -188,14 +195,12 @@ export async function getJobApplication(id: string): Promise<JobApplication> {
   }
 }
 
-export async function createJobApplication(
-  jobApplication: {
-    candidateId: string;
-    jobId: string;
-    status?: string;
-    notes?: string;
-  }
-): Promise<JobApplication> {
+export async function createJobApplication(jobApplication: {
+  candidateId: string;
+  jobId: string;
+  status?: string;
+  notes?: string;
+}): Promise<JobApplication> {
   try {
     const payload = {
       job_application: {
@@ -206,10 +211,13 @@ export async function createJobApplication(
       }
     };
 
-    const response = await apiRequest<JobApplicationDetailResponse>('/job_applications', {
-      method: 'POST',
-      body: payload
-    });
+    const response = await apiRequest<JobApplicationDetailResponse>(
+      '/job_applications',
+      {
+        method: 'POST',
+        body: payload
+      }
+    );
 
     return transformJobApplication(response.data, response.included);
   } catch (error) {
@@ -233,10 +241,13 @@ export async function updateJobApplication(
       }
     };
 
-    const response = await apiRequest<JobApplicationDetailResponse>(`/job_applications/${id}`, {
-      method: 'PATCH',
-      body: payload
-    });
+    const response = await apiRequest<JobApplicationDetailResponse>(
+      `/job_applications/${id}`,
+      {
+        method: 'PATCH',
+        body: payload
+      }
+    );
 
     return transformJobApplication(response.data, response.included);
   } catch (error) {
@@ -262,13 +273,13 @@ export async function addNote(
 ): Promise<JobApplication> {
   try {
     const currentApp = await getJobApplication(id);
-    const updatedNotes = currentApp.notes 
+    const updatedNotes = currentApp.notes
       ? `${currentApp.notes}\n---\n${new Date().toISOString()}\n${note}`
       : `${new Date().toISOString()}\n${note}`;
-    
+
     return updateJobApplication(id, { notes: updatedNotes });
   } catch (error) {
     console.error(`Error adding note to job application ${id}:`, error);
     throw error;
   }
-} 
+}

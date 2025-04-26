@@ -1,60 +1,156 @@
 <script lang="ts">
   import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
   import { auth } from '$lib/stores/auth';
+  import { onMount } from 'svelte';
+  import { getDashboardData } from '$lib/services/dashboardService';
+  import type { DashboardData } from '$lib/services/dashboardService';
+  import { formatDistanceToNow } from 'date-fns';
+  import { enUS, ptBR } from 'date-fns/locale';
+  import T from '$lib/i18n/T.svelte';
+  import { currentLang } from '$lib/i18n/store';
+
+  let dashboardData: DashboardData | null = null;
+  let loading = true;
+  let error = false;
+
+  onMount(async () => {
+    try {
+      dashboardData = await getDashboardData();
+    } catch (e) {
+      console.error('Error loading dashboard data:', e);
+      error = true;
+    } finally {
+      loading = false;
+    }
+  });
+
+  function formatDate(dateString: string): string {
+    try {
+      // Use the appropriate locale based on the current language
+      const locale = $currentLang === 'pt' ? ptBR : enUS;
+      return formatDistanceToNow(new Date(dateString), {
+        addSuffix: true,
+        locale
+      });
+    } catch (e) {
+      return 'Unknown date';
+    }
+  }
 </script>
 
 <ProtectedRoute>
   <div class="dashboard">
-    <h1>Dashboard</h1>
-
     <div class="welcome-card">
-      <h2>Welcome, {$auth.user?.name || 'User'}!</h2>
-      <p>You are now logged in to your account.</p>
+      <h2><T key="welcome" />, {$auth.user?.name || 'User'}!</h2>
+      <p><T key="welcomeMessage" /></p>
     </div>
 
-    <div class="dashboard-content">
-      <div class="stats-card">
-        <h3>Your Stats</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value">12</span>
-            <span class="stat-label">Applications</span>
+    {#if loading}
+      <div class="loading">
+        <p><T key="loadingDashboard" /></p>
+      </div>
+    {:else if error}
+      <div class="error-message">
+        <p><T key="dashboardError" /></p>
+      </div>
+    {:else if dashboardData}
+      <div class="dashboard-content">
+        <div class="stats-card">
+          <h3><T key="systemStats" /></h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value">{dashboardData.stats.jobs_opened}</span>
+              <span class="stat-label"><T key="openJobs" /></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{dashboardData.stats.applications}</span>
+              <span class="stat-label"><T key="applications" /></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value"
+                >{dashboardData.stats.jobs_with_offers}</span
+              >
+              <span class="stat-label"><T key="offersExtended" /></span>
+            </div>
           </div>
-          <div class="stat-item">
-            <span class="stat-value">3</span>
-            <span class="stat-label">Interviews</span>
+        </div>
+
+        <div class="recent-activity">
+          <h3><T key="recentActivity" /></h3>
+
+          <div class="activity-section">
+            <h4><T key="newJobs" /></h4>
+            {#if dashboardData.recent_activity.new_jobs.length === 0}
+              <p class="no-data"><T key="noRecentJobs" /></p>
+            {:else}
+              <ul class="activity-list">
+                {#each dashboardData.recent_activity.new_jobs as job}
+                  <li class="activity-item">
+                    <span class="activity-date"
+                      >{formatDate(job.created_at)}</span
+                    >
+                    <span class="activity-text">
+                      <a href="/jobs/{job.id}">{job.title}</a>
+                      <T key="at" />
+                      {job.company_name}
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
           </div>
-          <div class="stat-item">
-            <span class="stat-value">2</span>
-            <span class="stat-label">Offers</span>
+
+          <div class="activity-section">
+            <h4><T key="newCandidates" /></h4>
+            {#if dashboardData.recent_activity.new_candidates.length === 0}
+              <p class="no-data"><T key="noRecentCandidates" /></p>
+            {:else}
+              <ul class="activity-list">
+                {#each dashboardData.recent_activity.new_candidates as candidate}
+                  <li class="activity-item">
+                    <span class="activity-date"
+                      >{formatDate(candidate.created_at)}</span
+                    >
+                    <span class="activity-text">
+                      <a href="/candidates/{candidate.id}">{candidate.name}</a>
+                      <T key="joinedPlatform" />
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </div>
+
+          <div class="activity-section">
+            <h4><T key="newApplications" /></h4>
+            {#if dashboardData.recent_activity.new_applications.length === 0}
+              <p class="no-data"><T key="noRecentApplications" /></p>
+            {:else}
+              <ul class="activity-list">
+                {#each dashboardData.recent_activity.new_applications as application}
+                  <li class="activity-item">
+                    <span class="activity-date"
+                      >{formatDate(application.created_at)}</span
+                    >
+                    <span class="activity-text">
+                      <a href="/candidates/{application.id}"
+                        >{application.candidate_name}</a
+                      >
+                      <T key="appliedFor" />
+                      <a href="/jobs/{application.id}"
+                        >{application.job_title}</a
+                      >
+                      <T key="at" />
+                      {application.company_name}
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
           </div>
         </div>
       </div>
-
-      <div class="recent-activity">
-        <h3>Recent Activity</h3>
-        <ul class="activity-list">
-          <li class="activity-item">
-            <span class="activity-date">Today</span>
-            <span class="activity-text"
-              >You applied to Software Engineer at TechCorp</span
-            >
-          </li>
-          <li class="activity-item">
-            <span class="activity-date">Yesterday</span>
-            <span class="activity-text"
-              >Interview scheduled with InnoSystems</span
-            >
-          </li>
-          <li class="activity-item">
-            <span class="activity-date">3 days ago</span>
-            <span class="activity-text"
-              >You received a job offer from DevLink</span
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
+    {/if}
   </div>
 </ProtectedRoute>
 
@@ -145,6 +241,17 @@
     color: #333;
   }
 
+  .activity-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .activity-section h4 {
+    color: #555;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+
   .activity-list {
     list-style: none;
     padding: 0;
@@ -152,7 +259,7 @@
   }
 
   .activity-item {
-    padding: 1rem 0;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #eee;
     display: flex;
     flex-direction: column;
@@ -170,6 +277,35 @@
 
   .activity-text {
     color: #333;
+  }
+
+  .activity-text a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .activity-text a:hover {
+    text-decoration: underline;
+  }
+
+  .no-data {
+    color: #999;
+    font-style: italic;
+    padding: 0.5rem 0;
+  }
+
+  .loading,
+  .error-message {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .error-message {
+    color: #e74c3c;
   }
 
   @media (max-width: 768px) {

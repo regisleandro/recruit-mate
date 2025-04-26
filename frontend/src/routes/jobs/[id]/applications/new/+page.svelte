@@ -6,16 +6,16 @@
   import T from '$lib/i18n/T.svelte';
   import { getJob } from '$lib/services/jobService';
   import { getCandidates } from '$lib/services/candidateService';
-  import { 
-    createJobApplication, 
-    JobApplicationStatus, 
-    JobApplicationStatusLabels 
+  import {
+    createJobApplication,
+    JobApplicationStatus,
+    JobApplicationStatusLabels
   } from '$lib/services/jobApplicationService';
   import type { Job } from '$lib/services/jobService';
   import type { Candidate } from '$lib/services/candidateService';
 
   const jobId = $page.params.id;
-  
+
   let job: Job | null = null;
   let candidates: Candidate[] = [];
   let loading = true;
@@ -29,14 +29,14 @@
 
   // Search
   let searchQuery = '';
-  
+
   onMount(async () => {
     try {
       loading = true;
-      
+
       // Load job data
       job = await getJob(jobId);
-      
+
       // Load candidates
       candidates = await getCandidates();
     } catch (err: any) {
@@ -56,16 +56,16 @@
     try {
       error = '';
       loading = true;
-      
+
       await createJobApplication({
         candidateId: selectedCandidateId,
         jobId,
         status,
         notes
       });
-      
+
       success = 'Job application created successfully';
-      
+
       // Redirect after short delay
       setTimeout(() => {
         goto(`/jobs/${jobId}/applications`);
@@ -83,8 +83,10 @@
   }
 
   // Filter candidates by search query
-  $: filteredCandidates = candidates.filter(candidate => 
-    !searchQuery || candidate.name.toLowerCase().includes(searchQuery.toLowerCase())
+  $: filteredCandidates = candidates.filter(
+    (candidate) =>
+      !searchQuery ||
+      candidate.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 </script>
 
@@ -92,10 +94,16 @@
   <div class="new-application-page">
     <div class="page-header">
       <div class="header-left">
-        <button class="back-button" on:click={handleCancel}>
+        <button type="button" class="back-button" on:click={handleCancel}>
           &larr; <T key="back" />
         </button>
-        <h1><T key="addApplication" /> {#if job}({job.description.substring(0, 30)}{job.description.length > 30 ? '...' : ''}){/if}</h1>
+        <h1>
+          <T key="addApplication" />
+          {#if job}({job.description.substring(0, 30)}{job.description.length >
+            30
+              ? '...'
+              : ''}){/if}
+        </h1>
       </div>
     </div>
 
@@ -116,17 +124,18 @@
         <form on:submit|preventDefault={handleSubmit}>
           <div class="form-section">
             <h2><T key="candidateInfo" /></h2>
-            
+
             <div class="search-box">
               <label for="candidate-search"><T key="searchCandidate" /></label>
-              <input 
+              <input
                 id="candidate-search"
-                type="text" 
-                bind:value={searchQuery} 
-                placeholder={$page.data?.translations?.searchCandidate || 'Search candidate'} 
+                type="text"
+                bind:value={searchQuery}
+                placeholder={$page.data?.translations?.searchCandidate ||
+                  'Search candidate'}
               />
             </div>
-            
+
             <div class="candidates-list">
               {#if filteredCandidates.length === 0}
                 <div class="empty-state">
@@ -134,19 +143,32 @@
                 </div>
               {:else}
                 {#each filteredCandidates as candidate}
-                  <div class="candidate-card {selectedCandidateId === candidate.id ? 'selected' : ''}">
+                  <div
+                    class="candidate-card {selectedCandidateId === candidate.id
+                      ? 'selected'
+                      : ''}"
+                  >
                     <label class="candidate-label">
-                      <input 
-                        type="radio" 
-                        name="candidate" 
-                        value={candidate.id} 
+                      <input
+                        type="radio"
+                        name="candidate"
+                        value={candidate.id}
                         bind:group={selectedCandidateId}
                       />
                       <div class="candidate-info">
                         <h3>{candidate.name}</h3>
-                        <p class="candidate-contact">{candidate.cellphone_number}</p>
+                        <p class="candidate-contact">
+                          {candidate.cellphone_number}
+                        </p>
                         {#if candidate.curriculum_summary}
-                          <p class="candidate-summary">{candidate.curriculum_summary.substring(0, 100)}{candidate.curriculum_summary.length > 100 ? '...' : ''}</p>
+                          <p class="candidate-summary">
+                            {candidate.curriculum_summary.substring(
+                              0,
+                              100
+                            )}{candidate.curriculum_summary.length > 100
+                              ? '...'
+                              : ''}
+                          </p>
                         {/if}
                       </div>
                     </label>
@@ -155,7 +177,7 @@
               {/if}
             </div>
           </div>
-          
+
           <div class="form-section">
             <h2><T key="applicationStatus" /></h2>
             <div class="form-group">
@@ -168,7 +190,7 @@
                 {/each}
               </select>
             </div>
-            
+
             <div class="form-group">
               <label for="notes">
                 <T key="applicationNotes" />
@@ -177,16 +199,21 @@
                 id="notes"
                 bind:value={notes}
                 rows="5"
-                placeholder={$page.data?.translations?.noteText || 'Add notes about this application'}
+                placeholder={$page.data?.translations?.noteText ||
+                  'Add notes about this application'}
               ></textarea>
             </div>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel-btn" on:click={handleCancel}>
               <T key="cancel" />
             </button>
-            <button type="submit" class="submit-btn" disabled={loading || !selectedCandidateId}>
+            <button
+              type="submit"
+              class="submit-btn"
+              disabled={loading || !selectedCandidateId}
+            >
               <T key="saveApplication" />
             </button>
           </div>
@@ -419,4 +446,4 @@
     background-color: #a9c6ea;
     cursor: not-allowed;
   }
-</style> 
+</style>

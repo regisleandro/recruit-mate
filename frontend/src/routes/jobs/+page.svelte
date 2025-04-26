@@ -86,7 +86,7 @@
         <table class="jobs-table">
           <thead>
             <tr>
-              <th><T key="jobDescription" /></th>
+              <th><T key="jobTitle" /></th>
               <th><T key="jobCompany" /></th>
               <th><T key="jobStatus" /></th>
               <th class="actions-column"><T key="actions" /></th>
@@ -96,9 +96,8 @@
             {#each jobs as job (job.id)}
               <tr>
                 <td>
-                  <div class="job-description-cell">
-                    {job.description.substring(0, 100)}
-                    {job.description.length > 100 ? '...' : ''}
+                  <div class="job-title-cell">
+                    {job.title}
                   </div>
                 </td>
                 <td>{job.company?.name || ''}</td>
@@ -243,11 +242,21 @@
     font-weight: 500;
   }
 
-  .job-description-cell {
+  .job-title-cell {
     max-width: 400px;
+  }
+
+  .job-title-cell {
+    font-weight: 500;
+  }
+
+  .job-description-preview {
+    color: #666;
+    font-size: 0.875rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: 0.25rem;
   }
 
   .status-badge {

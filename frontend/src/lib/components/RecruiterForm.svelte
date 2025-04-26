@@ -28,20 +28,20 @@
   // Function to truncate the masked OpenAI key to a reasonable length
   function getTruncatedKey(key: string) {
     if (!key) return '';
-    
+
     // If the key is over 30 characters, truncate it in the middle
     if (key.length > 30) {
       const prefix = key.substring(0, 10);
       const suffix = key.substring(key.length - 10);
       return `${prefix}...${suffix}`;
     }
-    
+
     return key;
   }
 
   function handleSubmit() {
     const recruiterToSubmit = { ...recruiter };
-    
+
     // If the user has entered a new OpenAI key, use it
     if (isChangingOpenAIKey && newOpenAIKey.trim() !== '') {
       recruiterToSubmit.openai_key = newOpenAIKey.trim();
@@ -49,20 +49,20 @@
       // If the user is changing the key but left it empty, don't update it
       delete recruiterToSubmit.openai_key;
     }
-    
+
     // If not changing the key, keep the original value (which will be masked)
     // but don't actually send it to the API to avoid overwriting with the masked version
     if (!isChangingOpenAIKey) {
       delete recruiterToSubmit.openai_key;
     }
-    
+
     dispatch('submit', { recruiter: recruiterToSubmit });
   }
 
   function handleCancel() {
     dispatch('cancel');
   }
-  
+
   function toggleOpenAIKeyInput() {
     isChangingOpenAIKey = !isChangingOpenAIKey;
     if (!isChangingOpenAIKey) {
@@ -107,13 +107,14 @@
       <label for="openai_key">
         <T key="recruiterOpenAIKey" />
       </label>
-      
+
       {#if recruiter.openai_key && !isChangingOpenAIKey}
         <div class="key-display">
-          <span class="masked-key">{getTruncatedKey(recruiter.openai_key)}</span>
-          <button 
-            type="button" 
-            class="change-key-button" 
+          <span class="masked-key">{getTruncatedKey(recruiter.openai_key)}</span
+          >
+          <button
+            type="button"
+            class="change-key-button"
             on:click={toggleOpenAIKeyInput}
           >
             <T key="recruiterAddNewKey" />
@@ -125,11 +126,12 @@
             id="openai_key"
             type="text"
             bind:value={newOpenAIKey}
-            placeholder={translations[$currentLang].recruiterOpenAIKeyPlaceholder}
+            placeholder={translations[$currentLang]
+              .recruiterOpenAIKeyPlaceholder}
           />
-          <button 
-            type="button" 
-            class="cancel-key-button" 
+          <button
+            type="button"
+            class="cancel-key-button"
             on:click={toggleOpenAIKeyInput}
           >
             <T key="recruiterCancelKey" />
@@ -180,35 +182,36 @@
     .recruiter-form {
       padding: 1rem;
     }
-    
+
     .key-display {
       flex-direction: column;
       align-items: stretch;
       gap: 0.5rem;
     }
-    
+
     .masked-key {
       max-width: 100%; /* Allow full width on mobile */
     }
-    
+
     .change-key-button {
       align-self: flex-start;
     }
-    
+
     .key-input-container {
       flex-direction: column;
       gap: 0.5rem;
     }
-    
+
     .cancel-key-button {
       align-self: flex-start;
     }
-    
+
     .form-actions {
       flex-direction: column-reverse;
     }
-    
-    .submit-button, .cancel-button {
+
+    .submit-button,
+    .cancel-button {
       width: 100%;
       text-align: center;
     }
@@ -295,14 +298,14 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
-  
+
   /* New styles for key display and change button */
   .key-display {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-  
+
   .masked-key {
     font-family: monospace;
     background-color: #f9f9f9;
@@ -315,8 +318,8 @@
     text-overflow: ellipsis;
     max-width: 300px;
   }
-  
-  .change-key-button, 
+
+  .change-key-button,
   .cancel-key-button {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
@@ -328,25 +331,25 @@
     white-space: nowrap;
     flex-shrink: 0;
   }
-  
+
   .change-key-button:hover {
     background-color: #e8e8e8;
   }
-  
+
   .cancel-key-button {
     background-color: #f5f5f5;
     color: #666;
   }
-  
+
   .cancel-key-button:hover {
     background-color: #e8e8e8;
   }
-  
+
   .key-input-container {
     display: flex;
     gap: 0.5rem;
   }
-  
+
   .key-input-container input {
     flex-grow: 1;
   }
