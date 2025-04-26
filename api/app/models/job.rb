@@ -5,6 +5,7 @@ class Job < ApplicationRecord
 
   validates :description, presence: true
   validates :status, presence: true
+  validates :title, presence: true
 
   # Define the status enum with all the required states
   enum :status, {

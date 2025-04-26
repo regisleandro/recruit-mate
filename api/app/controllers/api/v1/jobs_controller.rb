@@ -57,7 +57,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def job_params
-        params.require(:job).permit(:description, :company_id, :benefits, :keywords, :start_time, :end_time,
+        params.require(:job).permit(:title, :description, :company_id, :benefits, :keywords, :start_time, :end_time,
                                     :interval_time, :status, :prompt)
       end
     end

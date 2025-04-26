@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :job do
+    title { Faker::Job.title }
     description { Faker::Lorem.paragraph(sentence_count: 3) }
     benefits { Faker::Lorem.paragraph(sentence_count: 2) }
     keywords { "#{Faker::Job.field},#{Faker::Job.key_skill},#{Faker::Job.key_skill}" }

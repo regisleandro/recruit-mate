@@ -6,5 +6,5 @@ lint:
 lint-fix:
 	bundle exec rubocop -A
 
-test:
+tests:
 	RAILS_ENV=test bundle exec rspec

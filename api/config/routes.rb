@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # API namespace for all endpoints
   namespace :api do
     namespace :v1 do
+      # Dashboard endpoint
+      get 'dashboard', to: 'dashboard#index'
+      
       resources :candidates
       resources :jobs do
         resources :job_applications, only: [:index]

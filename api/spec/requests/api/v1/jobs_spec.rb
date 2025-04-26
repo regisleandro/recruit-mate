@@ -6,6 +6,7 @@ RSpec.describe 'API V1 Jobs', type: :request do
   let(:job) { create(:job, company: company) }
   let(:valid_attributes) do
     {
+      title: 'Software Engineer',
       description: 'Test Job',
       company_id: company.id,
       benefits: 'Benefits',

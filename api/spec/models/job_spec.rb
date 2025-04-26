@@ -16,6 +16,11 @@ RSpec.describe Job, type: :model do
       expect(job).not_to be_valid
     end
 
+    it 'is not valid without a title' do
+      job = build(:job, title: nil)
+      expect(job).not_to be_valid
+    end
+
     it 'is not valid if end_time is before start_time' do
       job = build(:job, start_time: Time.current, end_time: 1.day.ago)
       expect(job).not_to be_valid
