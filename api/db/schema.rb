@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_21_215416) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_26_172227) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,6 +34,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_21_215416) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_companies_on_user_id"
+  end
+
+  create_table "job_applications", force: :cascade do |t|
+    t.bigint "candidate_id", null: false
+    t.bigint "job_id", null: false
+    t.integer "status", default: 0
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["candidate_id", "job_id"], name: "index_job_applications_on_candidate_id_and_job_id", unique: true
+    t.index ["candidate_id"], name: "index_job_applications_on_candidate_id"
+    t.index ["job_id"], name: "index_job_applications_on_job_id"
+    t.index ["status"], name: "index_job_applications_on_status"
   end
 
   create_table "jobs", force: :cascade do |t|
@@ -60,6 +73,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_21_215416) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "openai_key"
     t.index ["user_id"], name: "index_recruiters_on_user_id"
   end
 
@@ -82,7 +96,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_21_215416) do
     t.string "access_token"
     t.string "phone_number_id"
     t.string "business_account_id"
-    t.string "webhook_secret"
     t.bigint "recruiter_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -92,6 +105,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_21_215416) do
 
   add_foreign_key "candidates", "users"
   add_foreign_key "companies", "users"
+  add_foreign_key "job_applications", "candidates"
+  add_foreign_key "job_applications", "jobs"
   add_foreign_key "jobs", "companies"
   add_foreign_key "recruiters", "users"
   add_foreign_key "whats_app_business_configs", "recruiters"

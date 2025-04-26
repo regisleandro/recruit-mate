@@ -12,17 +12,17 @@ class WhatsAppBusinessConfig < ApplicationRecord
   validates :phone_number_id, presence: true
   validates :business_account_id, presence: true
   validates :verify_token, presence: true, on: :update
-  
+
   # Generate a random verify token before saving if none exists
   before_save :ensure_verify_token
-  
+
   # Adding a method to mask sensitive information in logs
   def to_s
     "#<WhatsAppBusinessConfig id: #{id}, recruiter_id: #{recruiter_id}>"
   end
-  
+
   private
-  
+
   def ensure_verify_token
     self.verify_token ||= SecureRandom.hex(32)
   end

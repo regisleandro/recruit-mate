@@ -33,13 +33,13 @@ class ApplicationController < ActionController::API
       # 1. "Bearer TOKEN" format from frontend
       # 2. Plain token format from tests or direct API calls
       auth_header = request.headers['Authorization']
-      token = auth_header.start_with?('Bearer ') ? auth_header.split(' ').last : auth_header
-      
+      token = auth_header.start_with?('Bearer ') ? auth_header.split.last : auth_header
+
       jwt_payload = JWT.decode(
         token,
         Rails.application.credentials.devise_jwt_secret_key!
       ).first
-      
+
       @current_user_id = jwt_payload['sub']
     rescue JWT::DecodeError => e
       Rails.logger.error("JWT decode error: #{e.message}")

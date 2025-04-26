@@ -3,7 +3,10 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :candidates
-      resources :jobs
+      resources :jobs do
+        resources :job_applications, only: [:index]
+      end
+      resources :job_applications
       resources :companies do
         resources :jobs, only: [:index]
       end

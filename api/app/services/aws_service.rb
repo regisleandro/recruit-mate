@@ -79,19 +79,13 @@ class AwsService
     private
 
     def aws_client
-      @aws_client ||= Aws::S3::Client.new(
-        access_key_id: Rails.application.credentials.dig(:aws, :access_key_id),
-        secret_access_key: Rails.application.credentials.dig(:aws, :secret_access_key),
-        region: Rails.application.credentials.dig(:aws, :region) || 'us-east-1'
-      )
+      # Use the AWS configuration set in the initializer
+      @aws_client ||= Aws::S3::Client.new
     end
 
     def aws_resource
-      @aws_resource ||= Aws::S3::Resource.new(
-        access_key_id: Rails.application.credentials.dig(:aws, :access_key_id),
-        secret_access_key: Rails.application.credentials.dig(:aws, :secret_access_key),
-        region: Rails.application.credentials.dig(:aws, :region) || 'us-east-1'
-      )
+      # Use the AWS configuration set in the initializer
+      @aws_resource ||= Aws::S3::Resource.new
     end
 
     def aws_bucket

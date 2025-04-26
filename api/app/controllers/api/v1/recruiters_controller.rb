@@ -54,7 +54,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def recruiter_params
-        params.require(:recruiter).permit(:name, :prompt, :telegram_token, :user_id)
+        params.require(:recruiter).permit(:name, :prompt, :telegram_token, :openai_key, :user_id)
       end
     end
   end

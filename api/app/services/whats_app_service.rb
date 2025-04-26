@@ -32,49 +32,23 @@ class WhatsAppService
     handle_response(response)
   end
 
-  # Verify webhook signature
-  def verify_webhook_signature(signature, body)
-    return false if signature.blank? || config.webhook_secret.blank?
-    
-    # Log the inputs for debugging
-    Rails.logger.info("Verifying webhook signature")
-    Rails.logger.info("Received signature: #{signature}")
-    
-    # Generate the signature using the app secret key
-    # The signature from WhatsApp includes 'sha256=' prefix
-    computed_signature = 'sha256=' + OpenSSL::HMAC.hexdigest(
-      OpenSSL::Digest.new('sha256'),
-      config.webhook_secret,
-      body
-    )
-    
-    # Log the comparison for debugging
-    Rails.logger.info("--------------------------------")
-    Rails.logger.info("Computed signature: #{computed_signature}")
-    Rails.logger.info("Received signature: #{signature}")
-    Rails.logger.info("--------------------------------")
-    
-    # Compare the signatures using secure comparison
-    ActiveSupport::SecurityUtils.secure_compare(signature, computed_signature)
-  end
-
   # Verify webhook using verify token (hub.verify_token) method
   def verify_webhook_token(mode, token, challenge)
     # Check if this is a verification request
     return nil unless mode == 'subscribe'
-    
+
     # Log the verification attempt
-    Rails.logger.info("Verifying webhook token")
+    Rails.logger.info('Verifying webhook token')
     Rails.logger.info("Received token: #{token}")
     Rails.logger.info("Expected token: #{config.verify_token}")
-    
+
     # Verify that the token matches your configured token
     if token == config.verify_token
-      Rails.logger.info("Token verified successfully, responding with challenge")
-      return challenge
+      Rails.logger.info('Token verified successfully, responding with challenge')
+      challenge
     else
-      Rails.logger.warn("Token verification failed")
-      return nil
+      Rails.logger.warn('Token verification failed')
+      nil
     end
   end
 
