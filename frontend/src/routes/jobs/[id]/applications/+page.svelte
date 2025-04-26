@@ -28,9 +28,11 @@
   // Search and filter variables
   let searchQuery = '';
   let statusFilter = '';
-  let candidateFilter = '';
   let startDateFilter = '';
   let endDateFilter = '';
+  
+  // Sidebar filter state
+  let sidebarOpen = false;
 
   onMount(async () => {
     try {
@@ -87,9 +89,13 @@
   function resetFilters() {
     searchQuery = '';
     statusFilter = '';
-    candidateFilter = '';
     startDateFilter = '';
     endDateFilter = '';
+    sidebarOpen = false;
+  }
+
+  function toggleSidebar() {
+    sidebarOpen = !sidebarOpen;
   }
 
   // Computed property for filtered applications
@@ -107,11 +113,6 @@
 
     // Filter by status
     if (statusFilter && application.status !== statusFilter) {
-      return false;
-    }
-
-    // Filter by candidate
-    if (candidateFilter && application.candidateId !== candidateFilter) {
       return false;
     }
 
@@ -158,102 +159,129 @@
       </button>
     </div>
 
-    <div class="filter-section">
-      <div class="search-box">
-        <input
-          type="text"
-          bind:value={searchQuery}
-          placeholder="Search candidate by name"
-        />
-      </div>
-
-      <div class="filters">
-        <select bind:value={statusFilter}>
-          <option value=""><T key="allStatuses" /></option>
-          {#each Object.entries(JobApplicationStatusLabels) as [key, label]}
-            <option value={key}>{label}</option>
-          {/each}
-        </select>
-
-        <select bind:value={candidateFilter}>
-          <option value=""><T key="allCandidates" /></option>
-          {#each candidates as candidate}
-            <option value={candidate.id}>{candidate.name}</option>
-          {/each}
-        </select>
-
-        <div class="date-filter">
-          <label>
-            <T key="fromDate" />:
-            <input type="date" bind:value={startDateFilter} />
-          </label>
-          <label>
-            <T key="toDate" />:
-            <input type="date" bind:value={endDateFilter} />
-          </label>
+    <div class="main-container">
+      <!-- Sidebar filter -->
+      <div class={`filter-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div class="sidebar-header">
+          <h3><T key="filters" /></h3>
+          <button type="button" class="close-sidebar" on:click={toggleSidebar}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
-        <button type="button" class="clear-filters" on:click={resetFilters}>
-          <T key="clearFilters" />
-        </button>
+        <div class="sidebar-content">
+          <div class="filter-group">
+            <label for="statusFilter"><T key="status" /></label>
+            <select id="statusFilter" bind:value={statusFilter}>
+              <option value=""><T key="allStatuses" /></option>
+              {#each Object.entries(JobApplicationStatusLabels) as [key, label]}
+                <option value={key}>{label}</option>
+              {/each}
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="startDateFilter"><T key="fromDate" /></label>
+            <input id="startDateFilter" type="date" bind:value={startDateFilter} />
+          </div>
+
+          <div class="filter-group">
+            <label for="endDateFilter"><T key="toDate" /></label>
+            <input id="endDateFilter" type="date" bind:value={endDateFilter} />
+          </div>
+
+          <button type="button" class="reset-filters-btn" on:click={resetFilters}>
+            <T key="clearFilters" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="content">
+        <div class="search-filter-row">
+          <div class="search-box">
+            <input
+              type="text"
+              bind:value={searchQuery}
+              placeholder="Search candidate by name"
+            />
+            <button type="button" class="filter-toggle-btn" on:click={toggleSidebar}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+              </svg>
+              <span class="sr-only">Toggle filters</span>
+            </button>
+          </div>
+        </div>
+
+        {#if loading}
+          <div class="loading">
+            <T key="loading" />
+          </div>
+        {:else if error}
+          <div class="error-message">
+            {error}
+          </div>
+        {:else if filteredApplications.length === 0}
+          <div class="empty-state">
+            <T key="noApplications" />
+          </div>
+        {:else}
+          <div class="applications-table-container">
+            <table class="applications-table">
+              <thead>
+                <tr>
+                  <th><T key="candidateName" /></th>
+                  <th><T key="applicationStatus" /></th>
+                  <th><T key="applicationDate" /></th>
+                  <th class="actions-column"><T key="actions" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each filteredApplications as application (application.id)}
+                  <tr>
+                    <td>{application.candidate?.name || ''}</td>
+                    <td>
+                      <span class="status-badge status-{application.status}"
+                        >{application.statusLabel}</span
+                      >
+                    </td>
+                    <td>{new Date(application.createdAt).toLocaleDateString()}</td>
+                    <td class="actions-cell">
+                      <button
+                        type="button"
+                        class="view-btn"
+                        on:click={() => handleView(application.id)}
+                      >
+                        <T key="viewApplication" />
+                      </button>
+                      <button
+                        type="button"
+                        class="delete-btn"
+                        on:click={() => openDeleteConfirm(application)}
+                      >
+                        <T key="deleteApplication" />
+                      </button>
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        {/if}
       </div>
     </div>
-
-    {#if loading}
-      <div class="loading">
-        <T key="loading" />
-      </div>
-    {:else if error}
-      <div class="error-message">
-        {error}
-      </div>
-    {:else if filteredApplications.length === 0}
-      <div class="empty-state">
-        <T key="noApplications" />
-      </div>
-    {:else}
-      <div class="applications-table-container">
-        <table class="applications-table">
-          <thead>
-            <tr>
-              <th><T key="candidateName" /></th>
-              <th><T key="applicationStatus" /></th>
-              <th><T key="applicationDate" /></th>
-              <th class="actions-column"><T key="actions" /></th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each filteredApplications as application (application.id)}
-              <tr>
-                <td>{application.candidate?.name || ''}</td>
-                <td>
-                  <span class="status-badge status-{application.status}"
-                    >{application.statusLabel}</span
-                  >
-                </td>
-                <td>{new Date(application.createdAt).toLocaleDateString()}</td>
-                <td class="actions-cell">
-                  <button
-                    type="button"
-                    class="view-btn"
-                    on:click={() => handleView(application.id)}
-                  >
-                    <T key="viewApplication" />
-                  </button>
-                  <button
-                    type="button"
-                    class="delete-btn"
-                    on:click={() => openDeleteConfirm(application)}
-                  >
-                    <T key="deleteApplication" />
-                  </button>
-                </td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    {/if}
 
     {#if showConfirmDelete && applicationToDelete}
       <div class="modal-overlay">
@@ -319,7 +347,108 @@
     margin: 0;
   }
 
-  .filter-section {
+  /* Main container with sidebar and content */
+  .main-container {
+    display: flex;
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  /* Sidebar styles */
+  .filter-sidebar {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 320px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: right 0.3s ease;
+    z-index: 50;
+    overflow-y: auto;
+  }
+
+  .filter-sidebar.open {
+    right: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .sidebar-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+  }
+
+  .close-sidebar {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  .close-sidebar:hover {
+    color: #333;
+  }
+
+  .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #555;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background-color: white;
+  }
+
+  .reset-filters-btn {
+    margin-top: 1rem;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .reset-filters-btn:hover {
+    background-color: #e0e0e0;
+  }
+
+  /* Content styles */
+  .content {
+    flex: 1;
+  }
+
+  .search-filter-row {
     margin-bottom: 1.5rem;
     background-color: #f9f9f9;
     padding: 1rem;
@@ -327,60 +456,45 @@
   }
 
   .search-box {
-    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
   }
 
   .search-box input {
-    width: 100%;
+    flex: 1;
     padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
   }
 
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .filters select {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    min-width: 150px;
-  }
-
-  .date-filter {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .date-filter label {
+  .filter-toggle-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-  }
-
-  .date-filter input {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
+    justify-content: center;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
     border-radius: 4px;
-  }
-
-  .clear-filters {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.75rem;
     cursor: pointer;
     transition: background-color 0.2s;
   }
 
-  .clear-filters:hover {
-    background-color: #e0e0e0;
+  .filter-toggle-btn:hover {
+    background-color: #357abd;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 
   .create-button {
