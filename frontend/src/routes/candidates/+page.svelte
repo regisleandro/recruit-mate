@@ -70,16 +70,7 @@
   <div class="candidates-page">
     <!-- Header with back button and job title -->
     <div class="page-header">
-      <div class="header-left">
-        <button
-          type="button"
-          class="back-button"
-          on:click={goBack}
-          aria-label="Go back"
-        >
-          &larr; <T key="back" />
-        </button>
-      </div>
+
       <button type="button" class="create-button" on:click={handleCreate}>
         <T key="addCandidate" />
       </button>
@@ -205,6 +196,7 @@
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin-left: auto;
   }
 
   .create-button:hover {

@@ -62,7 +62,6 @@
 <ProtectedRoute>
   <div class="recruiters-page">
     <div class="page-header">
-      <h1><T key="recruitersList" /></h1>
       <button type="button" class="create-button" on:click={handleCreate}>
         <T key="addRecruiter" />
       </button>
@@ -171,6 +170,7 @@
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin-left: auto;
   }
 
   .create-button:hover {

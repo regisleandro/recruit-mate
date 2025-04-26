@@ -506,6 +506,7 @@
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin-left: auto;
   }
 
   .create-button:hover {
