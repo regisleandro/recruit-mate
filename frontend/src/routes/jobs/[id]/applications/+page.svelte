@@ -30,7 +30,7 @@
   let statusFilter = '';
   let startDateFilter = '';
   let endDateFilter = '';
-  
+
   // Sidebar filter state
   let sidebarOpen = false;
 
@@ -165,7 +165,17 @@
         <div class="sidebar-header">
           <h3><T key="filters" /></h3>
           <button type="button" class="close-sidebar" on:click={toggleSidebar}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -185,15 +195,23 @@
 
           <div class="filter-group">
             <label for="startDateFilter"><T key="fromDate" /></label>
-            <input id="startDateFilter" type="date" bind:value={startDateFilter} />
+            <input
+              id="startDateFilter"
+              type="date"
+              bind:value={startDateFilter}
+            />
           </div>
 
           <div class="filter-group">
-            <label for="endDateFilter"><T key="toDate" /></label>
+            <label for="endDateFilter"><T key="untilDate" /></label>
             <input id="endDateFilter" type="date" bind:value={endDateFilter} />
           </div>
 
-          <button type="button" class="reset-filters-btn" on:click={resetFilters}>
+          <button
+            type="button"
+            class="reset-filters-btn"
+            on:click={resetFilters}
+          >
             <T key="clearFilters" />
           </button>
         </div>
@@ -208,8 +226,22 @@
               bind:value={searchQuery}
               placeholder="Search candidate by name"
             />
-            <button type="button" class="filter-toggle-btn" on:click={toggleSidebar}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button
+              type="button"
+              class="filter-toggle-btn"
+              on:click={toggleSidebar}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="4" y1="21" x2="4" y2="14"></line>
                 <line x1="4" y1="10" x2="4" y2="3"></line>
                 <line x1="12" y1="21" x2="12" y2="12"></line>
@@ -257,7 +289,11 @@
                         >{application.statusLabel}</span
                       >
                     </td>
-                    <td>{new Date(application.createdAt).toLocaleDateString()}</td>
+                    <td
+                      >{new Date(
+                        application.createdAt
+                      ).toLocaleDateString()}</td
+                    >
                     <td class="actions-cell">
                       <button
                         type="button"

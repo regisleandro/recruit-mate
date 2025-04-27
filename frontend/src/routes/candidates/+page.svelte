@@ -70,7 +70,6 @@
   <div class="candidates-page">
     <!-- Header with back button and job title -->
     <div class="page-header">
-
       <button type="button" class="create-button" on:click={handleCreate}>
         <T key="addCandidate" />
       </button>
