@@ -5,13 +5,13 @@ class OpenaiService
   include RecruiterTools
 
   base_uri 'https://api.openai.com/v1'
-  
+
   def initialize(key)
     @openai_key = key
     history << {
       role: 'system',
       content: "
-        You are a helpful assistant. 
+        You are a helpful assistant.
         You must detect the language of the user's message based on their words.
         Always respond in the same detected language.
         If the user writes anything in Portuguese, you must respond strictly in Portuguese.
@@ -21,7 +21,7 @@ class OpenaiService
         Returns the response in markdown format for whatsapp.
         You will answer all the questions first, looking at the history, and then you will call the tools if needed.
         You will not call the tools if the user is asking for information that is already in the history.
-      " 
+      "
     }
   end
 
@@ -57,11 +57,11 @@ class OpenaiService
   end
 
   def process(response:)
-    outputs = response.dig('output')
+    outputs = response['output']
     outputs.each do |output|
-      if output.dig('type') == 'message'
+      if output['type'] == 'message'
         history << { role: 'assistant', content: output.dig('content', 0, 'text') }
-      elsif output.dig('type') == 'function_call'
+      elsif output['type'] == 'function_call'
         handle_tool_call(tool_call: output)
         response = model_response
         process(response: response)
@@ -70,21 +70,20 @@ class OpenaiService
   end
 
   def handle_tool_call(tool_call:)
-    tool_name = tool_call.dig('name')
-    parameters = JSON.parse(tool_call.dig('arguments'), symbolize_names: true)
+    tool_name = tool_call['name']
+    parameters = JSON.parse(tool_call['arguments'], symbolize_names: true)
 
     content = parameters.empty? ? send(tool_name) : send(tool_name, **parameters)
 
     history << {
       role: 'assistant',
-      content: content,
+      content: content
     }
-    
   rescue NoMethodError
     error_message = "Unknown tool called: #{tool_name}"
     history << {
       role: 'assistant',
-      content: { error: error_message },
+      content: { error: error_message }
     }
     error_message
   end

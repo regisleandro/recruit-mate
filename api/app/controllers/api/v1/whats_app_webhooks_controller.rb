@@ -1,5 +1,6 @@
 module Api
   module V1
+    # rubocop:disable Metrics/ClassLength
     class WhatsAppWebhooksController < ApplicationController
       # GET /api/v1/whatsapp_webhooks
       # For webhook verification by WhatsApp
@@ -97,46 +98,59 @@ module Api
       def process_webhook_data(webhook_data)
         messages = webhook_data.dig(:entry, 0, :changes, 0, :value, :messages)
         phone_number_id = webhook_data.dig(:entry, 0, :changes, 0, :value, :metadata, :phone_number_id)
-        if messages.present?
-          # Process only the first message in the webhook
-          message = messages.first
-          message_id = message.dig(:id)
-          
-          message_cache_key = "whatsapp:message:#{message_id}"
-          return if Rails.cache.exist?(message_cache_key)
-          
-          Rails.cache.write(message_cache_key, true, expires_in: 24.hours)
-          
-          config_cache_key = "whatsapp:config:#{phone_number_id}"
-          whats_app_config = Rails.cache.fetch(config_cache_key, expires_in: 24.hours) do
-            find_config_by_phone_number_id(phone_number_id)
-          end
-          
-          if whats_app_config.present? && message.dig(:type) == 'text'
-            to = message.dig(:from)
-            if to.length == 12
-              to = to[0..4] + '9' + to[5..-1]
-            end
-            
-            Rails.logger.info("Processing message from #{to}")
+        return if messages.blank?
 
-            conversation_key = "whatsapp:conversation:#{phone_number_id}:#{to}"
-            
-            recruiter = whats_app_config.recruiter
-            
-            service = Rails.cache.fetch(conversation_key, expires_in: 8.hours) do
-              OpenaiService.new(recruiter.openai_key)
-            end
-            
-            reply_message = service.chat(message: message.dig(:text, :body))
-            
-            Rails.cache.write(conversation_key, service, expires_in: 8.hours)
-            
-            whats_app_service = WhatsAppService.new(whats_app_config)
-            
-            Rails.logger.info("Sending response to #{to}")
-            whats_app_service.send_text_message(to, reply_message.dig(:content))
-          end
+        # Process only the first message in the webhook
+        message = messages.first
+        message_id = message[:id]
+
+        message_cache_key = "whatsapp:message:#{message_id}"
+        return if Rails.cache.exist?(message_cache_key)
+
+        Rails.cache.write(message_cache_key, true, expires_in: 24.hours)
+
+        config_cache_key = "whatsapp:config:#{phone_number_id}"
+        whats_app_config = Rails.cache.fetch(config_cache_key, expires_in: 24.hours) do
+          find_config_by_phone_number_id(phone_number_id)
+        end
+
+        return unless whats_app_config.present? && message[:type] == 'text'
+
+        send_message(message, whats_app_config)
+      end
+
+      def send_message(message, whats_app_config)
+        to = message_destinataire(message)
+
+        Rails.logger.info("Processing message from #{to}")
+
+        conversation_key = conversation_key(whats_app_config.phone_number_id, to)
+        service = openai_service(whats_app_config, conversation_key)
+
+        reply_message = service.chat(message: message.dig(:text, :body))
+
+        Rails.cache.write(conversation_key, service, expires_in: 8.hours)
+
+        whats_app_service = WhatsAppService.new(whats_app_config)
+
+        Rails.logger.info("Sending response to #{to}")
+        whats_app_service.send_text_message(to, reply_message[:content])
+      end
+
+      def message_destinataire(message)
+        return message[:from] if message[:from].length > 12
+
+        to = message[:from]
+        "#{to[0..4]}9#{to[5..]}"
+      end
+
+      def conversation_key(phone_number_id, to)
+        "whatsapp:conversation:#{phone_number_id}:#{to}"
+      end
+
+      def openai_service(whats_app_config, conversation_key)
+        Rails.cache.fetch(conversation_key, expires_in: 8.hours) do
+          OpenaiService.new(whats_app_config.recruiter.openai_key)
         end
       end
 
@@ -163,5 +177,6 @@ module Api
         WhatsAppBusinessConfig.exists?(webhook_secret: token)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
