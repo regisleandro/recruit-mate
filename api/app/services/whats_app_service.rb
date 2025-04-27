@@ -75,12 +75,13 @@ class WhatsAppService
     if response.success?
       response.parsed_response
     else
-      error_message = "WhatsApp API Error: #{response.code} - #{response.message}"
+      error_message = "WhatsApp API Error: #{response.code} - #{response}"
       Rails.logger.error(error_message)
       { error: error_message, details: response.parsed_response }
     end
   rescue StandardError => e
-    Rails.logger.error("WhatsApp API Error: #{e.message}")
+
+    Rails.logger.error("WhatsApp API Error: #{e}")
     { error: e.message }
   end
 end

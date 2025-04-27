@@ -142,3 +142,5 @@ heroku run rails db:migrate
 ## License
 
 This project is proprietary and confidential. All rights reserved.
+
+- ngrok http --url=jawfish-immortal-precisely.ngrok-free.app 3000

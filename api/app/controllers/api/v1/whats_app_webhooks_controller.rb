@@ -11,7 +11,6 @@ module Api
 
         Rails.logger.info("WhatsApp webhook verification - Mode: #{mode}, Token present: #{token.present?}")
 
-        # Check if the token matches a verify_token in any WhatsApp business configuration
         if mode == 'subscribe' && verify_token_valid?(token)
           Rails.logger.info('Token verification successful - Responding with challenge')
           render plain: challenge, status: :ok
@@ -26,8 +25,6 @@ module Api
       def receive
         request.body.rewind
         request_body = request.body.read.force_encoding('ASCII-8BIT').dup
-
-        # Parse the webhook data
         begin
           webhook_data = parse_webhook_data(request_body)
           process_webhook(webhook_data, request_body)
@@ -43,7 +40,6 @@ module Api
       end
 
       def process_webhook(webhook_data, request_body)
-        # Validate webhook by checking for required WhatsApp-specific fields
         if WhatsAppWebhookValidator.valid_format?(webhook_data)
           phone_number_id = extract_phone_number_id(webhook_data)
           process_valid_webhook(phone_number_id, request_body)
@@ -60,7 +56,6 @@ module Api
         whats_app_config = find_config_by_phone_number_id(phone_number_id)
 
         if whats_app_config.present?
-          # Process the webhook data
           process_verified_webhook(request_body)
         else
           log_no_matching_config(phone_number_id)
@@ -100,12 +95,49 @@ module Api
       end
 
       def process_webhook_data(webhook_data)
-        # Process the webhook data here
-        # For now, we just log it
+        messages = webhook_data.dig(:entry, 0, :changes, 0, :value, :messages)
+        phone_number_id = webhook_data.dig(:entry, 0, :changes, 0, :value, :metadata, :phone_number_id)
+        if messages.present?
+          # Process only the first message in the webhook
+          message = messages.first
+          message_id = message.dig(:id)
+          
+          message_cache_key = "whatsapp:message:#{message_id}"
+          return if Rails.cache.exist?(message_cache_key)
+          
+          Rails.cache.write(message_cache_key, true, expires_in: 24.hours)
+          
+          config_cache_key = "whatsapp:config:#{phone_number_id}"
+          whats_app_config = Rails.cache.fetch(config_cache_key, expires_in: 24.hours) do
+            find_config_by_phone_number_id(phone_number_id)
+          end
+          
+          if whats_app_config.present? && message.dig(:type) == 'text'
+            to = message.dig(:from)
+            if to.length == 12
+              to = to[0..4] + '9' + to[5..-1]
+            end
+            
+            Rails.logger.info("Processing message from #{to}")
 
-        # You can implement proper message handling here
-        # Example: process incoming message from a candidate
-        # handle_incoming_message(webhook_data)
+            conversation_key = "whatsapp:conversation:#{phone_number_id}:#{to}"
+            
+            recruiter = whats_app_config.recruiter
+            
+            service = Rails.cache.fetch(conversation_key, expires_in: 8.hours) do
+              OpenaiService.new(recruiter.openai_key)
+            end
+            
+            reply_message = service.chat(message: message.dig(:text, :body))
+            
+            Rails.cache.write(conversation_key, service, expires_in: 8.hours)
+            
+            whats_app_service = WhatsAppService.new(whats_app_config)
+            
+            Rails.logger.info("Sending response to #{to}")
+            whats_app_service.send_text_message(to, reply_message.dig(:content))
+          end
+        end
       end
 
       # Verify token validation method
@@ -129,12 +161,6 @@ module Api
         return true if verify_token_valid?(token)
 
         WhatsAppBusinessConfig.exists?(webhook_secret: token)
-      end
-
-      # Remove all these methods as they are now in the validator service
-      # Alternative validation approach that doesn't rely on signatures
-      def valid_whatsapp_webhook_format?(data)
-        WhatsAppWebhookValidator.valid_format?(data)
       end
     end
   end

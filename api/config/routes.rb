@@ -15,13 +15,11 @@ Rails.application.routes.draw do
       end
       
       resources :recruiters do
-        # WhatsApp Business configuration endpoints for recruiters
         resource :whatsapp_business_config, controller: 'whats_app_business_configs', only: [:show, :create, :update, :destroy] do
           post 'test_message', on: :member
         end
       end
       
-      # WhatsApp webhook endpoints
       get 'whatsapp_webhooks', to: 'whats_app_webhooks#verify'
       post 'whatsapp_webhooks', to: 'whats_app_webhooks#receive'
     end
