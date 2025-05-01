@@ -22,8 +22,9 @@ module Api
           return render json: { error: 'WhatsApp Business configuration already exists' }, status: :unprocessable_entity
         end
 
-        @whats_app_config = current_user.whats_app_business_configs.new(whats_app_config_params)
+        @whats_app_config = WhatsAppBusinessConfig.new(whats_app_config_params)
         @whats_app_config.recruiter = recruiter
+        @whats_app_config.user = current_user
 
         if @whats_app_config.save
           render json: @whats_app_config, status: :created
@@ -93,9 +94,9 @@ module Api
       end
 
       def ensure_recruiter_exists
-        unless Recruiter.exists?(params[:recruiter_id])
-          render json: { error: 'Recruiter not found' }, status: :not_found
-        end
+        return if Recruiter.exists?(params[:recruiter_id])
+
+        render json: { error: 'Recruiter not found' }, status: :not_found
       end
 
       def whats_app_config_params

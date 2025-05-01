@@ -12,7 +12,7 @@ RSpec.describe 'API V1 Recruiters', type: :request do
 
   describe 'GET /api/v1/recruiters' do
     it 'returns a list of recruiters when authenticated' do
-      create_list(:recruiter, 3)
+      create_list(:recruiter, 3, user: user)
 
       get '/api/v1/recruiters', headers: auth_headers_with_token
 

@@ -2,16 +2,16 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Dashboard', type: :request do
   let(:user) { create(:user) }
-  let(:company) { create(:company) }
-  let!(:jobs) { create_list(:job, 3, company: company, status: 'open') }
+  let(:company) { create(:company, user: user) }
+  let!(:jobs) { create_list(:job, 3, company: company, status: 'open', user: user) }
   let!(:candidates) { create_list(:candidate, 3, user: user) }
 
   # Create job applications with different job-candidate pairings to avoid validation error
   let!(:job_applications) do
     [
-      create(:job_application, job: jobs[0], candidate: candidates[0]),
-      create(:job_application, job: jobs[1], candidate: candidates[0]),
-      create(:job_application, job: jobs[0], candidate: candidates[1])
+      create(:job_application, job: jobs[0], candidate: candidates[0], user: user),
+      create(:job_application, job: jobs[1], candidate: candidates[0], user: user),
+      create(:job_application, job: jobs[0], candidate: candidates[1], user: user)
     ]
   end
 

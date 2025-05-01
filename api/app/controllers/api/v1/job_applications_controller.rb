@@ -72,7 +72,9 @@ module Api
       def apply_filters
         @job_applications = @job_applications.where(status: params[:status]) if params[:status].present?
         @job_applications = @job_applications.where(job_id: params[:job_id]) if params[:job_id].present?
-        @job_applications = @job_applications.where(candidate_id: params[:candidate_id]) if params[:candidate_id].present?
+        return if params[:candidate_id].blank?
+
+        @job_applications = @job_applications.where(candidate_id: params[:candidate_id])
       end
     end
   end

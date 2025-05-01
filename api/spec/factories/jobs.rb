@@ -10,6 +10,7 @@ FactoryBot.define do
     status { Job.statuses.keys.sample }
     prompt { Faker::Lorem.paragraph(sentence_count: 4) }
     association :company
+    association :user
 
     trait :draft do
       status { :draft }

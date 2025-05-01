@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'API V1 Candidates', type: :request do
   let(:user) { create(:user) }
-  let(:candidate) { create(:candidate) }
+  let(:candidate) { create(:candidate, user: user) }
   let(:valid_attributes) do
     {
       name: 'Test Candidate',
@@ -20,7 +20,7 @@ RSpec.describe 'API V1 Candidates', type: :request do
 
   describe 'GET /api/v1/candidates' do
     it 'returns a list of candidates when authenticated' do
-      create_list(:candidate, 3)
+      create_list(:candidate, 3, user: user)
 
       get '/api/v1/candidates', headers: auth_headers_with_token
 

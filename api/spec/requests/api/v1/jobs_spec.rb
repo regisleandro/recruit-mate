@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'API V1 Jobs', type: :request do
   let(:user) { create(:user) }
   let(:company) { create(:company, user: user) }
-  let(:job) { create(:job, company: company) }
+  let(:job) { create(:job, company: company, user: user) }
   let(:valid_attributes) do
     {
       title: 'Software Engineer',
@@ -22,7 +22,7 @@ RSpec.describe 'API V1 Jobs', type: :request do
 
   describe 'GET /api/v1/jobs' do
     it 'returns a list of jobs when authenticated' do
-      create_list(:job, 3, company: company)
+      create_list(:job, 3, company: company, user: user)
 
       get '/api/v1/jobs', headers: auth_headers_with_token
 
@@ -41,9 +41,9 @@ RSpec.describe 'API V1 Jobs', type: :request do
 
   describe 'GET /api/v1/companies/:company_id/jobs' do
     it 'returns jobs for a specific company' do
-      create_list(:job, 3, company: company)
+      create_list(:job, 3, company: company, user: user)
       another_company = create(:company, user: user)
-      create_list(:job, 2, company: another_company)
+      create_list(:job, 2, company: another_company, user: user)
 
       get "/api/v1/companies/#{company.id}/jobs", headers: auth_headers_with_token
 

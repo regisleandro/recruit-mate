@@ -3,7 +3,8 @@ FactoryBot.define do
     access_token { 'MyString' }
     phone_number_id { 'MyString' }
     business_account_id { 'MyString' }
-    webhook_secret { 'MyString' }
+    verify_token { 'MyString' }
     recruiter { nil }
+    user { nil }
   end
 end
