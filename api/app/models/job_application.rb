@@ -1,22 +1,20 @@
 class JobApplication < ApplicationRecord
-  belongs_to :candidate
   belongs_to :job
+  belongs_to :candidate
+  belongs_to :user
 
   validates :status, presence: true
   validates :candidate_id, uniqueness: { scope: :job_id, message: 'has already applied for this job' }
 
   # Define the status enum with all the required states for job applications
-  enum :status, {
-    pending: 0,
-    reviewing: 1,
-    phone_screen: 2,
-    interviewing: 3,
-    technical_test: 4,
-    reference_check: 5,
-    offered: 6,
-    accepted: 7,
-    rejected: 8,
-    withdrawn: 9
+  enum status: {
+    pending: 'pending',
+    reviewing: 'reviewing',
+    interviewing: 'interviewing',
+    offered: 'offered',
+    accepted: 'accepted',
+    rejected: 'rejected',
+    withdrawn: 'withdrawn'
   }
 
   # Scopes for easier querying

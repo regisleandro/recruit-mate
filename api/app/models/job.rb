@@ -1,11 +1,12 @@
 class Job < ApplicationRecord
   belongs_to :company
+  belongs_to :user
   has_many :job_applications, dependent: :destroy
   has_many :candidates, through: :job_applications
 
+  validates :title, presence: true
   validates :description, presence: true
   validates :status, presence: true
-  validates :title, presence: true
 
   # Define the status enum with all the required states
   enum :status, {
@@ -26,6 +27,7 @@ class Job < ApplicationRecord
   # Scopes for easier querying
   scope :active, -> { where(status: %i[draft open on_hold in_review interviewing offer_extended]) }
   scope :completed, -> { where(status: %i[offer_accepted closed archived offer_declined cancelled]) }
+  scope :by_user, ->(user) { where(user_id: user.id) }
 
   # Custom validation for time fields
   validate :end_time_after_start_time, if: -> { start_time.present? && end_time.present? }

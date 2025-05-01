@@ -6,7 +6,7 @@ module Api
 
       # GET /companies
       def index
-        @companies = Company.all
+        @companies = current_user.companies
 
         render json: CompanySerializer.new(@companies).serializable_hash
       end
@@ -46,7 +46,7 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_company
-        @company = Company.find(params[:id])
+        @company = current_user.companies.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Company not found' }, status: :not_found
       end

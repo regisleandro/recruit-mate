@@ -6,7 +6,7 @@ module Api
 
       # GET /recruiters
       def index
-        @recruiters = Recruiter.all
+        @recruiters = current_user.recruiters
 
         render json: RecruiterSerializer.new(@recruiters).serializable_hash
       end
@@ -18,8 +18,7 @@ module Api
 
       # POST /recruiters
       def create
-        @recruiter = Recruiter.new(recruiter_params)
-        @recruiter.user = current_user
+        @recruiter = current_user.recruiters.new(recruiter_params)
 
         if @recruiter.save
           render json: RecruiterSerializer.new(@recruiter).serializable_hash, status: :created
@@ -47,7 +46,7 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_recruiter
-        @recruiter = Recruiter.find(params[:id])
+        @recruiter = current_user.recruiters.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Recruiter not found' }, status: :not_found
       end

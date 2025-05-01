@@ -6,7 +6,7 @@ module Api
 
       # GET /candidates
       def index
-        @candidates = Candidate.all
+        @candidates = current_user.candidates
 
         render json: CandidateSerializer.new(@candidates).serializable_hash
       end
@@ -18,7 +18,7 @@ module Api
 
       # POST /candidates
       def create
-        @candidate = Candidate.new(candidate_params)
+        @candidate = current_user.candidates.new(candidate_params)
 
         if @candidate.save
           # Process file upload if a curriculum file was provided
@@ -56,7 +56,7 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_candidate
-        @candidate = Candidate.find(params[:id])
+        @candidate = current_user.candidates.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Candidate not found' }, status: :not_found
       end

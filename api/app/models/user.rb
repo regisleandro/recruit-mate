@@ -9,4 +9,8 @@ class User < ApplicationRecord
 
   has_many :companies, dependent: :destroy
   has_many :recruiters, dependent: :destroy
+  has_many :candidates, dependent: :destroy
+  has_many :jobs, dependent: :destroy
+  has_many :job_applications, dependent: :destroy
+  has_many :whats_app_business_configs, through: :recruiters
 end

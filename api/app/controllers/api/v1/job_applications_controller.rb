@@ -6,7 +6,7 @@ module Api
 
       # GET /job_applications
       def index
-        @job_applications = JobApplication.all
+        @job_applications = current_user.job_applications
         apply_filters
 
         options = {}
@@ -25,7 +25,7 @@ module Api
 
       # POST /job_applications
       def create
-        @job_application = JobApplication.new(job_application_params)
+        @job_application = current_user.job_applications.new(job_application_params)
 
         if @job_application.save
           options = {}
@@ -59,7 +59,7 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_job_application
-        @job_application = JobApplication.find(params[:id])
+        @job_application = JobApplication.by_user(current_user).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Job application not found' }, status: :not_found
       end
@@ -69,30 +69,10 @@ module Api
         params.require(:job_application).permit(:candidate_id, :job_id, :status, :notes)
       end
 
-      # Filter methods
       def apply_filters
-        apply_basic_filters
-        apply_date_filters
-      end
-
-      def apply_basic_filters
-        @job_applications = @job_applications.where(job_id: params[:job_id]) if params[:job_id].present?
-        if params[:candidate_id].present?
-          @job_applications = @job_applications.where(candidate_id: params[:candidate_id])
-        end
         @job_applications = @job_applications.where(status: params[:status]) if params[:status].present?
-      end
-
-      def apply_date_filters
-        if params[:start_date].present?
-          start_date = Date.parse(params[:start_date])
-          @job_applications = @job_applications.where(created_at: start_date.beginning_of_day..)
-        end
-
-        return if params[:end_date].blank?
-
-        end_date = Date.parse(params[:end_date])
-        @job_applications = @job_applications.where(created_at: ..end_date.end_of_day)
+        @job_applications = @job_applications.where(job_id: params[:job_id]) if params[:job_id].present?
+        @job_applications = @job_applications.where(candidate_id: params[:candidate_id]) if params[:candidate_id].present?
       end
     end
   end

@@ -1,5 +1,6 @@
 class WhatsAppBusinessConfig < ApplicationRecord
   belongs_to :recruiter
+  belongs_to :user
 
   # Encrypt sensitive WhatsApp Business API credentials
   encrypts :access_token
@@ -12,6 +13,9 @@ class WhatsAppBusinessConfig < ApplicationRecord
   validates :phone_number_id, presence: true
   validates :business_account_id, presence: true
   validates :verify_token, presence: true, on: :update
+
+  # Scopes
+  scope :by_user, ->(user) { where(user_id: user.id) }
 
   # Generate a random verify token before saving if none exists
   before_save :ensure_verify_token

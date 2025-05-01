@@ -7,9 +7,9 @@ module Api
       # GET /jobs
       def index
         @jobs = if params[:company_id]
-                  Job.where(company_id: params[:company_id])
+                  Job.by_user(current_user).where(company_id: params[:company_id])
                 else
-                  Job.all
+                  Job.by_user(current_user)
                 end
 
         render json: JobSerializer.new(@jobs).serializable_hash
@@ -22,7 +22,7 @@ module Api
 
       # POST /jobs
       def create
-        @job = Job.new(job_params)
+        @job = current_user.jobs.new(job_params)
 
         if @job.save
           render json: JobSerializer.new(@job).serializable_hash, status: :created
@@ -50,7 +50,7 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_job
-        @job = Job.find(params[:id])
+        @job = Job.by_user(current_user).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Job not found' }, status: :not_found
       end

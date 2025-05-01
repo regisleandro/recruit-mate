@@ -7,9 +7,9 @@ module Api
       def index
         render json: {
           stats: {
-            jobs_opened: Job.where(status: 'open').count,
-            applications: JobApplication.count,
-            jobs_with_offers: Job.where(status: 'offer_extended').count
+            jobs_opened: current_user.jobs.where(status: 'open').count,
+            applications: current_user.job_applications.count,
+            jobs_with_offers: current_user.jobs.where(status: 'offer_extended').count
           },
           recent_activity: {
             new_jobs: recent_jobs,
@@ -22,7 +22,7 @@ module Api
       private
 
       def recent_jobs
-        Job.order(created_at: :desc).limit(5).map do |job|
+        current_user.jobs.order(created_at: :desc).limit(5).map do |job|
           {
             id: job.id,
             title: job.title,
@@ -33,7 +33,7 @@ module Api
       end
 
       def recent_candidates
-        Candidate.order(created_at: :desc).limit(5).map do |candidate|
+        current_user.candidates.order(created_at: :desc).limit(5).map do |candidate|
           {
             id: candidate.id,
             name: candidate.name,
@@ -43,7 +43,7 @@ module Api
       end
 
       def recent_applications
-        JobApplication.includes(:job, :candidate).order(created_at: :desc).limit(5).map do |application|
+        current_user.job_applications.includes(:job, :candidate).order(created_at: :desc).limit(5).map do |application|
           {
             id: application.id,
             candidate_name: application.candidate.name,
