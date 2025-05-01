@@ -4,6 +4,59 @@ module Users
   class RegistrationsController < Devise::RegistrationsController
     respond_to :json
 
+    # Custom create action to handle the user creation and return appropriate response
+    def create
+      build_resource(sign_up_params)
+      
+      resource.save
+      yield resource if block_given?
+      
+      if resource.persisted?
+        if resource.active_for_authentication?
+          # User was not required to confirm email
+          sign_up(resource_name, resource)
+          respond_with resource
+        else
+          # User needs to confirm email
+          expire_data_after_sign_in!
+          render json: {
+            status: { 
+              code: 200, 
+              message: 'Registration successful! Please check your email to confirm your account.' 
+            },
+            data: UserSerializer.new(resource).serializable_hash[:data][:attributes].merge(
+              confirmation_required: true
+            )
+          }
+        end
+      else
+        clean_up_passwords resource
+        set_minimum_password_length
+        respond_with resource
+      end
+    end
+    
+    # Endpoint to confirm user's email
+    def confirm_email
+      token = params[:confirmation_token]
+      user = User.find_by(confirmation_token: token)
+      
+      if user.present? && !user.confirmed?
+        user.confirm
+        render json: {
+          status: { code: 200, message: 'Email confirmed successfully! You can now log in.' }
+        }
+      elsif user.present? && user.confirmed?
+        render json: {
+          status: { code: 200, message: 'Email already confirmed. You can log in.' }
+        }
+      else
+        render json: {
+          status: { message: 'Invalid confirmation token.' }
+        }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def respond_with(current_user, _opts = {})

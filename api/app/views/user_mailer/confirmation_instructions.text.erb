@@ -1,0 +1,13 @@
+Welcome to RecruitMate!
+
+Hi <%= @user.email %>,
+
+Thanks for signing up for RecruitMate. To complete your registration and verify your email address, please visit the link below:
+
+<%= @confirmation_url %>
+
+Your confirmation link will expire in 7 days. If you didn't create an account with us, you can safely ignore this email.
+
+---
+RecruitMate © <%= Date.today.year %> | All rights reserved
+This email was sent to <%= @user.email %>.

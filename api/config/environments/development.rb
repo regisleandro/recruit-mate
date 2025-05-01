@@ -40,6 +40,25 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = false
 
   config.action_mailer.perform_caching = false
+  
+  # Configure mail delivery for development
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  
+  # Use letter_opener in development to preview emails in the browser
+  config.action_mailer.delivery_method = ENV['SEND_REAL_EMAILS'] ? :smtp : :letter_opener
+  
+  # If SEND_REAL_EMAILS is set, use these SMTP settings
+  if ENV['SEND_REAL_EMAILS']
+    config.action_mailer.smtp_settings = {
+      address: ENV['SMTP_SERVER'] || 'smtp.example.com',
+      port: ENV['SMTP_PORT'] || 587,
+      domain: ENV['SMTP_DOMAIN'] || 'example.com',
+      user_name: ENV['SMTP_USERNAME'],
+      password: ENV['SMTP_PASSWORD'],
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -66,9 +85,6 @@ Rails.application.configure do
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
 
-  # Configure mailer for Devise
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
-  
   # Allow requests from ngrok
   config.hosts << /.*\.ngrok-free\.app/
 end

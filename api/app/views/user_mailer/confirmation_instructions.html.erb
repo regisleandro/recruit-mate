@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4A56E2;
+        color: white !important;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to RecruitMate!</h1>
+    
+    <p>Hi <%= @user.email %>,</p>
+    
+    <p>Thanks for signing up for RecruitMate. To complete your registration and verify your email address, please click the button below:</p>
+    
+    <p>
+      <a href="<%= @confirmation_url %>" class="button">Confirm my account</a>
+    </p>
+    
+    <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+    <p><%= @confirmation_url %></p>
+    
+    <p>Your confirmation link will expire in 7 days. If you didn't create an account with us, you can safely ignore this email.</p>
+    
+    <div class="footer">
+      <p>RecruitMate &copy; <%= Date.today.year %> | All rights reserved</p>
+      <p>This email was sent to <%= @user.email %>.</p>
+    </div>
+  </body>
+</html>

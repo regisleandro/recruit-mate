@@ -36,6 +36,9 @@ Rails.application.routes.draw do
     registrations: 'api/v1/users/registrations'
   }
   
+  # Custom confirmation route
+  get 'confirm_email', to: 'users/registrations#confirm_email'
+  
   # Default route redirects to api/v1
   root to: redirect('/api/v1')
 end
