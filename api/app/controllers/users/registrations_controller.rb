@@ -7,40 +7,21 @@ module Users
     # Custom create action to handle the user creation and return appropriate response
     def create
       build_resource(sign_up_params)
-      
       resource.save
       yield resource if block_given?
-      
+
       if resource.persisted?
-        if resource.active_for_authentication?
-          # User was not required to confirm email
-          sign_up(resource_name, resource)
-          respond_with resource
-        else
-          # User needs to confirm email
-          expire_data_after_sign_in!
-          render json: {
-            status: { 
-              code: 200, 
-              message: 'Registration successful! Please check your email to confirm your account.' 
-            },
-            data: UserSerializer.new(resource).serializable_hash[:data][:attributes].merge(
-              confirmation_required: true
-            )
-          }
-        end
+        handle_successful_registration
       else
-        clean_up_passwords resource
-        set_minimum_password_length
-        respond_with resource
+        handle_failed_registration
       end
     end
-    
+
     # Endpoint to confirm user's email
     def confirm_email
       token = params[:confirmation_token]
       user = User.find_by(confirmation_token: token)
-      
+
       if user.present? && !user.confirmed?
         user.confirm
         render json: {
@@ -58,6 +39,40 @@ module Users
     end
 
     private
+
+    def handle_successful_registration
+      if resource.active_for_authentication?
+        handle_active_registration
+      else
+        handle_inactive_registration
+      end
+    end
+
+    def handle_active_registration
+      sign_up(resource_name, resource)
+      respond_with resource
+    end
+
+    def handle_inactive_registration
+      expire_data_after_sign_in!
+      render json: {
+        status: {
+          code: 200,
+          message: 'Registration successful! Please check your email to confirm your account.'
+        },
+        data: serialized_user_data.merge(confirmation_required: true)
+      }
+    end
+
+    def handle_failed_registration
+      clean_up_passwords resource
+      set_minimum_password_length
+      respond_with resource
+    end
+
+    def serialized_user_data
+      UserSerializer.new(resource).serializable_hash[:data][:attributes]
+    end
 
     def respond_with(current_user, _opts = {})
       if resource.persisted?
