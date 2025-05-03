@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strongpassword}
+      POSTGRES_USER: ${POSTGRES_USER:-recruit_mate}
+      POSTGRES_DB: ${POSTGRES_DB:-recruit_mate_production}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-recruit_mate}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-strongredispassword}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-strongredispassword}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: production
+      RACK_ENV: production
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-recruit_mate}:${POSTGRES_PASSWORD:-strongpassword}@db/${POSTGRES_DB:-recruit_mate_production}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-strongredispassword}@redis:6379/1
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "true"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=${API_URL:-http://localhost:3000/}
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Optional: Add a reverse proxy like Nginx here for SSL termination
+  # nginx:
+  #   image: nginx:1.23
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/conf:/etc/nginx/conf.d
+  #     - ./nginx/ssl:/etc/nginx/ssl
+  #     - ./nginx/logs:/var/log/nginx
+  #   depends_on:
+  #     - api
+  #     - frontend
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data: 

@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.*
+.DS_Store
+node_modules
+/build
+/.svelte-kit
+/package
+.vscode
+.idea
+.dockerignore
+Dockerfile
+.bolt
+.prettierrc
+.eslintrc.cjs 

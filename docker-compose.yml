@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: recruit_mate
+      POSTGRES_DB: recruit_mate
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recruit_mate"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://recruit_mate:password@db/recruit_mate
+      REDIS_URL: redis://redis:6379/0
+      RAILS_LOG_TO_STDOUT: "true"
+    ports:
+      - "3000:3000"
+
+  # Use a dev server for the frontend that stays running
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host --port 3001"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api:3000/
+      - HOST=0.0.0.0
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_cache:
+  frontend_node_modules: 

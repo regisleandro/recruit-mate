@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+log/*
+tmp/*
+storage/*
+.DS_Store
+.byebug_history
+.rspec
+/public/packs
+/public/packs-test
+/public/assets
+/node_modules
+/yarn-error.log
+/coverage/
+spec/tmp 

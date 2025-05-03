@@ -18,9 +18,39 @@ This project consists of two main components:
 1. **Frontend** - A modern Svelte application that provides a user-friendly interface for recruiters
 2. **API** - A Ruby on Rails backend that handles data processing, AI operations, and business logic
 
-## Getting Started
+## Docker Setup
 
-For detailed setup and usage instructions, please refer to the specific README files for each component:
+This project uses Docker to simplify development setup. Make sure you have Docker and Docker Compose installed on your system.
+
+### Running with Docker
+
+1. Build all containers:
+   ```
+   make build
+   ```
+
+2. Start all containers:
+   ```
+   make up
+   ```
+
+3. The application will be available at:
+   - Frontend: http://localhost:5173
+   - API: http://localhost:3000
+
+### Useful Commands
+
+- View logs: `make logs`
+- Stop all containers: `make down`
+- Access API shell: `make shell-api`
+- Access frontend shell: `make shell-frontend`
+- Run migrations: `make db-migrate`
+- Run API tests: `make tests`
+- Run linting: `make lint`
+
+## Manual Setup
+
+For detailed setup and usage instructions without Docker, please refer to the specific README files for each component:
 
 - [Frontend README](./frontend/README.md)
 - [API README](./api/README.md)
