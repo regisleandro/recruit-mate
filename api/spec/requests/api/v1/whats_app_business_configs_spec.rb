@@ -28,7 +28,7 @@ RSpec.describe 'Api::V1::WhatsAppBusinessConfigs', type: :request do
 
         get "/api/v1/recruiters/#{recruiter.id}/whatsapp_business_config", headers: headers
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body).to include('id')
+        expect(response.parsed_body['data']).to include('id')
       end
     end
 

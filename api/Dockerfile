@@ -1,53 +1,72 @@
-FROM ruby:3.2.6
+# ---- First stage: Build dependencies ----
+FROM --platform=linux/amd64 ruby:3.2.6 as builder
 
-# Install dependencies
-RUN apt-get update -qq && apt-get install -y \
+WORKDIR /app
+
+# Install minimal build tools
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     nodejs \
-    npm \
-    postgresql-client && \
+    npm && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
+# Set environment
+ENV RAILS_ENV=production \
+    RACK_ENV=production \
+    NODE_ENV=production \
+    BUNDLE_PATH=/usr/local/bundle
 
-# Set Rails environment to production
-ENV RAILS_ENV=production
-ENV RACK_ENV=production
-ENV NODE_ENV=production
-ENV RAILS_LOG_TO_STDOUT=true
-ENV RAILS_SERVE_STATIC_FILES=true
+# Create bundle directory
+RUN mkdir -p $BUNDLE_PATH
 
-# Note: When running the container, you must provide:
-# - SECRET_KEY_BASE environment variable
-# - REDIS_URL if using Redis cache (defaults to redis://localhost:6379/1)
-# - DATABASE_URL for PostgreSQL connection
-
-# Copy gemfile and lock file
+# Copy Gemfile and lock file
 COPY Gemfile Gemfile.lock ./
 
-# Install gems without development and test dependencies
-RUN bundle config set --local without 'development test'
-RUN bundle install --jobs 4 --retry 3 && \
-    rm -rf /usr/local/bundle/cache/*.gem && \
-    find /usr/local/bundle/gems/ -name "*.c" -delete && \
-    find /usr/local/bundle/gems/ -name "*.o" -delete
+# Install gems without development/test groups
+RUN bundle config set --local path "$BUNDLE_PATH" && \
+    bundle config set --local without 'development test' && \
+    bundle install --jobs 4 --retry 3
 
-# Copy the application code
+# Copy rest of app
 COPY . .
 
-# Remove unnecessary files to reduce image size
-RUN rm -rf node_modules tmp/cache spec test
+# Precompile assets if you have any
+# RUN bundle exec rake assets:precompile
 
-# Create a non-root user and switch to it
-RUN adduser --disabled-password --gecos "" rails
-RUN chown -R rails:rails /app
+# ---- Second stage: Final lightweight image ----
+FROM --platform=linux/amd64 ruby:3.2.6
+
+WORKDIR /app
+
+# Install runtime dependencies only
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+    libpq-dev \
+    nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set environment
+ENV RAILS_ENV=production \
+    RACK_ENV=production \
+    NODE_ENV=production \
+    BUNDLE_PATH=/usr/local/bundle
+
+# Copy vendored gems from previous stage - ensure full bundle is copied
+COPY --from=builder $BUNDLE_PATH $BUNDLE_PATH
+COPY --from=builder /app /app
+
+# Create non-root user
+RUN adduser --disabled-password --gecos "" rails && \
+    chown -R rails:rails /app
+
+# Make setup.sh executable
+RUN chmod +x /app/setup.sh
+
 USER rails
 
-# Expose port 3000
 EXPOSE 3000
-
-# Start the server in production mode
-CMD ["bin/docker-entrypoint"] 
+CMD ["/app/setup.sh", "bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

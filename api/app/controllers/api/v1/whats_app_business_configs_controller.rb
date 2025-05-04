@@ -8,7 +8,7 @@ module Api
       # GET /api/v1/whatsapp_business_config/:recruiter_id
       def show
         if @whats_app_config
-          render json: @whats_app_config, status: :ok
+          render json: WhatsAppBusinessConfigSerializer.new(@whats_app_config).serializable_hash, status: :ok
         else
           render json: { error: 'WhatsApp Business configuration not found' }, status: :not_found
         end
@@ -27,7 +27,7 @@ module Api
         @whats_app_config.user = current_user
 
         if @whats_app_config.save
-          render json: @whats_app_config, status: :created
+          render json: WhatsAppBusinessConfigSerializer.new(@whats_app_config).serializable_hash, status: :created
         else
           render json: { errors: @whats_app_config.errors.full_messages }, status: :unprocessable_entity
         end
@@ -36,7 +36,7 @@ module Api
       # PUT/PATCH /api/v1/whatsapp_business_config/:recruiter_id
       def update
         if @whats_app_config.update(whats_app_config_params)
-          render json: @whats_app_config, status: :ok
+          render json: WhatsAppBusinessConfigSerializer.new(@whats_app_config).serializable_hash, status: :ok
         else
           render json: { errors: @whats_app_config.errors.full_messages }, status: :unprocessable_entity
         end
