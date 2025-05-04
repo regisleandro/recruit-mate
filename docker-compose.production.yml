@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:14
+    platform: linux/amd64
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -18,6 +17,7 @@ services:
 
   redis:
     image: redis:7
+    platform: linux/amd64
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-strongredispassword}
@@ -29,9 +29,8 @@ services:
     restart: unless-stopped
 
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+    image: regisleandro/recruit-mate-api:latest
+    platform: linux/amd64
     depends_on:
       db:
         condition: service_healthy
@@ -47,21 +46,23 @@ services:
       RAILS_LOG_TO_STDOUT: "true"
       RAILS_SERVE_STATIC_FILES: "true"
     ports:
-      - "3000:3000"
+      - "53006:3000"
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.production
+    image: regisleandro/recruit-mate-front:latest
+    platform: linux/amd64
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=${API_URL:-http://localhost:3000/}
+      - API_URL=${VITE_API_URL:-http://localhost:3000/}
+    volumes:
+      - ./create-config.sh:/create-config.sh
+    entrypoint: ["/bin/sh", "/create-config.sh"]
+    command: ["node", "server.js"]
     ports:
-      - "80:80"
-    depends_on:
-      - api
+      - "80:3001"
     restart: unless-stopped
+
 
   # Optional: Add a reverse proxy like Nginx here for SSL termination
   # nginx:
@@ -76,8 +77,8 @@ services:
   #   depends_on:
   #     - api
   #     - frontend
-  #   restart: unless-stopped
+  #   restart: unless-stopped   
 
 volumes:
   postgres_data:
-  redis_data: 
+  redis_data:
