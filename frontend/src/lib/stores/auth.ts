@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
 import type { AuthStore, AuthState } from './auth.d';
-
-const API_URL = import.meta.env.API_URL || 'http://localhost:3000';
+import { API_URL } from '../utils/constants';
 
 // Initial state
 const initialState: AuthState = {

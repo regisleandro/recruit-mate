@@ -15,19 +15,18 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Print debug information about build output
-RUN echo "Build completed. Checking output files:" && \
-    ls -la .svelte-kit/output/server || echo "No .svelte-kit/output/server directory"
-
 # Production stage
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy all build files and deps
+# Copy package files and dependencies
 COPY --from=build /app/package.json /app/package-lock.json ./
-COPY --from=build /app/.svelte-kit/output/server ./
-COPY --from=build /app/node_modules ./node_modules
+RUN npm install --omit=dev
+
+# Copy the build output
+COPY --from=build /app/build ./build
+COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Make entrypoint script executable

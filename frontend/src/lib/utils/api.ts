@@ -1,8 +1,8 @@
 import { auth } from '../stores/auth';
 import { get } from 'svelte/store';
 import axios from 'axios';
+import { API_URL } from './constants';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:3000';
 const API_PREFIX = '/api/v1';
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';

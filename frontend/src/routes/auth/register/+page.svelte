@@ -5,6 +5,7 @@
   import { translations } from '$lib/i18n/translations';
   import type { Language } from '$lib/i18n/translations';
   import { auth } from '$lib/stores/auth';
+  import { API_URL } from '$lib/utils/constants';
 
   let fullName = '';
   let email = '';
@@ -50,22 +51,19 @@
 
     try {
       // Call the signup API endpoint
-      const response = await fetch(
-        `${import.meta.env.API_URL || 'http://localhost:3000'}/signup`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            user: {
-              email,
-              password,
-              name: fullName
-            }
-          })
-        }
-      );
+      const response = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user: {
+            email,
+            password,
+            name: fullName
+          }
+        })
+      });
 
       const data = await response.json();
 
@@ -119,13 +117,27 @@
       </div>
 
       {#if registrationSuccess && confirmationRequired}
-        <div class="mt-8 rounded-md bg-green-50 dark:bg-green-900/30 p-6 text-center">
+        <div
+          class="mt-8 rounded-md bg-green-50 dark:bg-green-900/30 p-6 text-center"
+        >
           <div class="flex justify-center">
-            <svg class="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              class="h-12 w-12 text-green-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
-          <h3 class="mt-4 text-lg font-medium text-green-800 dark:text-green-200">
+          <h3
+            class="mt-4 text-lg font-medium text-green-800 dark:text-green-200"
+          >
             <T key="accountCreated" />
           </h3>
           <p class="mt-2 text-sm text-green-700 dark:text-green-300">

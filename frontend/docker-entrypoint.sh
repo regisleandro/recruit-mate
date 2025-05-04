@@ -4,6 +4,8 @@ set -e
 echo "Starting Docker entrypoint script"
 echo "Current directory: $(pwd)"
 echo "Node.js version: $(node -v)"
+echo "Listing build directory:"
+ls -la build
 
 # Make sure environment variables are set
 export PORT=${PORT:-3001}
@@ -12,12 +14,5 @@ export NODE_ENV=${NODE_ENV:-production}
 
 echo "Starting server on $HOST:$PORT (NODE_ENV=$NODE_ENV)"
 
-# Explicitly launch the server with host and port
-exec node -e "
-  process.env.HOST = '$HOST';
-  process.env.PORT = '$PORT';
-  process.env.NODE_ENV = '$NODE_ENV';
-  console.log('Server starting on http://' + process.env.HOST + ':' + process.env.PORT);
-  const server = require('./index.js');
-  console.log('Server loaded');
-" 
+# Execute the server from the build directory (SvelteKit with adapter-node)
+exec node build/index.js 

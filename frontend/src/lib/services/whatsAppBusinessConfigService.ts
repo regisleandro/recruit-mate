@@ -35,6 +35,54 @@ export interface ErrorDetails {
   details?: unknown;
 }
 
+// Interface for API response structure
+interface ApiResponseData {
+  data: {
+    id: string;
+    type: string;
+    attributes: {
+      id: number;
+      phone_number_id: string;
+      business_account_id: string;
+      access_token: string;
+      verify_token: string;
+      created_at: string;
+      updated_at: string;
+      [key: string]: unknown;
+    };
+    relationships?: {
+      recruiter?: {
+        data: {
+          id: string;
+          type: string;
+        };
+      };
+      [key: string]: unknown;
+    };
+  };
+}
+
+// Convert JSONAPI response to our interface format
+const convertJsonApiToConfig = (
+  response: ApiResponseData
+): WhatsAppBusinessConfig | null => {
+  if (!response || !response.data) return null;
+
+  const { data } = response;
+  const attributes = data.attributes || {};
+
+  return {
+    id: attributes.id,
+    access_token: attributes.access_token,
+    phone_number_id: attributes.phone_number_id,
+    business_account_id: attributes.business_account_id,
+    verify_token: attributes.verify_token,
+    recruiter_id: parseInt(data.relationships?.recruiter?.data?.id || '0'),
+    created_at: attributes.created_at,
+    updated_at: attributes.updated_at
+  };
+};
+
 const whatsAppBusinessConfigService = {
   /**
    * Get the WhatsApp Business configuration for a specific recruiter
@@ -46,7 +94,7 @@ const whatsAppBusinessConfigService = {
       const response = await axios.get(
         `${API_URL}/api/v1/recruiters/${recruiterId}/whatsapp_business_config`
       );
-      return response.data;
+      return convertJsonApiToConfig(response.data);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         return null;
@@ -68,7 +116,7 @@ const whatsAppBusinessConfigService = {
         whats_app_business_config: config
       }
     );
-    return response.data;
+    return convertJsonApiToConfig(response.data) as WhatsAppBusinessConfig;
   },
 
   /**
@@ -84,7 +132,7 @@ const whatsAppBusinessConfigService = {
         whats_app_business_config: config
       }
     );
-    return response.data;
+    return convertJsonApiToConfig(response.data) as WhatsAppBusinessConfig;
   },
 
   /**

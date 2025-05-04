@@ -315,12 +315,16 @@ export const translations = {
     emailConfirmation: 'Email Confirmation',
     verifyingEmail: 'Verifying your email...',
     emailConfirmed: 'Email confirmed successfully!',
-    errorMissingToken: 'Missing confirmation token. Please check the link in your email.',
-    errorConfirmation: 'There was a problem confirming your email. Please try again or contact support.',
+    errorMissingToken:
+      'Missing confirmation token. Please check the link in your email.',
+    errorConfirmation:
+      'There was a problem confirming your email. Please try again or contact support.',
     accountCreated: 'Account created successfully!',
-    pleaseConfirmEmail: 'Please check your email to confirm your account. You will need to confirm your email before you can log in.',
-    checkSpamFolder: 'If you don\'t see the email in your inbox, please check your spam or junk folder.',
-    errorInvalidEmail: 'Please enter a valid email address.',
+    pleaseConfirmEmail:
+      'Please check your email to confirm your account. You will need to confirm your email before you can log in.',
+    checkSpamFolder:
+      "If you don't see the email in your inbox, please check your spam or junk folder.",
+    errorInvalidEmail: 'Please enter a valid email address.'
   },
   pt: {
     // Home page
@@ -639,12 +643,16 @@ export const translations = {
     emailConfirmation: 'Confirmação de Email',
     verifyingEmail: 'Verificando seu email...',
     emailConfirmed: 'Email confirmado com sucesso!',
-    errorMissingToken: 'Token de confirmação ausente. Por favor, verifique o link no seu email.',
-    errorConfirmation: 'Ocorreu um problema ao confirmar seu email. Por favor, tente novamente ou entre em contato com o suporte.',
+    errorMissingToken:
+      'Token de confirmação ausente. Por favor, verifique o link no seu email.',
+    errorConfirmation:
+      'Ocorreu um problema ao confirmar seu email. Por favor, tente novamente ou entre em contato com o suporte.',
     accountCreated: 'Conta criada com sucesso!',
-    pleaseConfirmEmail: 'Por favor, verifique seu email para confirmar sua conta. Você precisará confirmar seu email antes de poder fazer login.',
-    checkSpamFolder: 'Se você não vir o email na caixa de entrada, verifique a pasta de spam ou lixo eletrônico.',
-    errorInvalidEmail: 'Por favor, insira um endereço de email válido.',
+    pleaseConfirmEmail:
+      'Por favor, verifique seu email para confirmar sua conta. Você precisará confirmar seu email antes de poder fazer login.',
+    checkSpamFolder:
+      'Se você não vir o email na caixa de entrada, verifique a pasta de spam ou lixo eletrônico.',
+    errorInvalidEmail: 'Por favor, insira um endereço de email válido.'
   }
 } as const;
 
